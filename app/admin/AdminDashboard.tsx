@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePowerEditor } from '@/lib/power-editor-context';
+import OrdersPanel from './OrdersPanel';
 
 type Category = { id: string; name: string; slug: string };
 type Product = {
@@ -39,6 +40,7 @@ export default function AdminDashboard({ categories }: { categories: Category[] 
   const [search, setSearch] = useState('');
   const [savingId, setSavingId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [tab, setTab] = useState<'products' | 'orders'>('products');
   const router = useRouter();
   const { editMode, toggleEditMode } = usePowerEditor();
 
@@ -198,6 +200,33 @@ export default function AdminDashboard({ categories }: { categories: Category[] 
         </div>
       </div>
 
+      <div className="flex gap-2 mb-6 border-b border-neutral-800">
+        <button
+          onClick={() => setTab('products')}
+          className={`text-sm px-4 py-2 border-b-2 transition-colors ${
+            tab === 'products'
+              ? 'border-[var(--gold)] text-[var(--gold)]'
+              : 'border-transparent text-neutral-500 hover:text-white'
+          }`}
+        >
+          Products
+        </button>
+        <button
+          onClick={() => setTab('orders')}
+          className={`text-sm px-4 py-2 border-b-2 transition-colors ${
+            tab === 'orders'
+              ? 'border-[var(--gold)] text-[var(--gold)]'
+              : 'border-transparent text-neutral-500 hover:text-white'
+          }`}
+        >
+          Orders &amp; Customers
+        </button>
+      </div>
+
+      {tab === 'orders' ? (
+        <OrdersPanel />
+      ) : (
+      <>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div className="card rounded-xl p-4">
           <p className="text-neutral-500 text-xs">Total Products</p>
@@ -441,6 +470,8 @@ export default function AdminDashboard({ categories }: { categories: Category[] 
             </tbody>
           </table>
         </div>
+      )}
+      </>
       )}
     </div>
   );

@@ -7,7 +7,7 @@ import { useCart } from '@/lib/cart-context';
 export default function CheckoutPage() {
   const { items, subtotal, clearCart } = useCart();
   const router = useRouter();
-  const [form, setForm] = useState({ customer_name: '', phone: '', address: '', city: '', notes: '' });
+  const [form, setForm] = useState({ customer_name: '', email: '', phone: '', address: '', city: '', notes: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -75,6 +75,16 @@ export default function CheckoutPage() {
               type="tel"
               value={form.phone}
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              className="w-full mt-1 bg-black border border-neutral-700 rounded-lg px-3 py-2.5 text-sm focus:border-[var(--gold)] outline-none"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-neutral-400">Email Address</label>
+            <input
+              required
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
               className="w-full mt-1 bg-black border border-neutral-700 rounded-lg px-3 py-2.5 text-sm focus:border-[var(--gold)] outline-none"
             />
           </div>

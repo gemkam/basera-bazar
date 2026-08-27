@@ -3,9 +3,9 @@ import { supabase } from '@/lib/supabase';
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { customer_name, phone, address, city, notes, items } = body;
+  const { customer_name, email, phone, address, city, notes, items } = body;
 
-  if (!customer_name || !phone || !address || !city || !items?.length) {
+  if (!customer_name || !email || !phone || !address || !city || !items?.length) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
   }
 
@@ -18,6 +18,7 @@ export async function POST(req: NextRequest) {
     .from('orders')
     .insert({
       customer_name,
+      email,
       phone,
       address,
       city,
