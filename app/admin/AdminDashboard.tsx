@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { usePowerEditor } from '@/lib/power-editor-context';
 
 type Category = { id: string; name: string; slug: string };
 type Product = {
@@ -25,7 +26,8 @@ const emptyForm = {
   price: 0,
   compare_at_price: '' as number | '',
   stock: 0,
-  images: '',
+  images: [] as string[],
+  imageUrlInput: '',
 };
 
 export default function AdminDashboard({ categories }: { categories: Category[] }) {
@@ -36,7 +38,9 @@ export default function AdminDashboard({ categories }: { categories: Category[] 
   const [form, setForm] = useState(emptyForm);
   const [search, setSearch] = useState('');
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
   const router = useRouter();
+  const { editMode, toggleEditMode } = usePowerEditor();
 
   const loadProducts = useCallback(async () => {
     setLoading(true);
@@ -56,6 +60,33 @@ export default function AdminDashboard({ categories }: { categories: Category[] 
     router.refresh();
   }
 
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    setUploading(true);
+    for (const file of Array.from(files)) {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await fetch('/api/admin/upload', { method: 'POST', body: fd });
+      if (res.ok) {
+        const data = await res.json();
+        setForm((f) => ({ ...f, images: [...f.images, data.url] }));
+      }
+    }
+    setUploading(false);
+    e.target.value = '';
+  }
+
+  function handleAddUrl() {
+    const url = form.imageUrlInput.trim();
+    if (!url) return;
+    setForm((f) => ({ ...f, images: [...f.images, url], imageUrlInput: '' }));
+  }
+
+  function handleRemoveImage(idx: number) {
+    setForm((f) => ({ ...f, images: f.images.filter((_, i) => i !== idx) }));
+  }
+
   async function handleAdd(e: React.FormEvent) {
     e.preventDefault();
     const res = await fetch('/api/admin/products', {
@@ -68,7 +99,7 @@ export default function AdminDashboard({ categories }: { categories: Category[] 
         price: Number(form.price),
         compare_at_price: form.compare_at_price ? Number(form.compare_at_price) : null,
         stock: Number(form.stock),
-        images: form.images.split(',').map((s) => s.trim()).filter(Boolean),
+        images: form.images,
       }),
     });
     if (res.ok) {
@@ -136,6 +167,16 @@ export default function AdminDashboard({ categories }: { categories: Category[] 
           Admin <span className="gold-gradient">Dashboard</span>
         </h1>
         <div className="flex gap-2">
+          <button
+            onClick={toggleEditMode}
+            className={`text-sm px-4 py-2 rounded-lg font-semibold transition-colors ${
+              editMode
+                ? 'bg-[var(--gold)] text-black hover:bg-[var(--gold-light)]'
+                : 'border border-neutral-700 hover:border-[var(--gold)] hover:text-[var(--gold)]'
+            }`}
+          >
+            {editMode ? '⚡ Power Editor: ON' : '⚡ Power Editor: OFF'}
+          </button>
           <button
             onClick={handleDownloadPdf}
             className="text-sm px-4 py-2 border border-neutral-700 rounded-lg hover:border-[var(--gold)] hover:text-[var(--gold)] transition-colors"
@@ -230,12 +271,60 @@ export default function AdminDashboard({ categories }: { categories: Category[] 
               onChange={(e) => setForm({ ...form, stock: Number(e.target.value) })}
               className="bg-black border border-neutral-700 rounded-lg px-3 py-2 text-sm outline-none focus:border-[var(--gold)]"
             />
-            <input
-              placeholder="Image URLs (comma separated)"
-              value={form.images}
-              onChange={(e) => setForm({ ...form, images: e.target.value })}
-              className="bg-black border border-neutral-700 rounded-lg px-3 py-2 text-sm outline-none focus:border-[var(--gold)]"
-            />
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-xs text-neutral-400">Product Images</p>
+            <div className="flex flex-wrap gap-2">
+              {form.images.map((img, idx) => (
+                <div key={idx} className="relative w-16 h-16 rounded-lg overflow-hidden border border-neutral-700">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={img} alt="" className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveImage(idx)}
+                    className="absolute top-0 right-0 bg-black/70 text-red-400 text-xs w-5 h-5 flex items-center justify-center"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex flex-col md:flex-row gap-2">
+              <label className="flex-1 cursor-pointer text-center text-sm border border-dashed border-neutral-700 rounded-lg px-3 py-2 hover:border-[var(--gold)] transition-colors">
+                {uploading ? 'Uploading...' : '📁 Upload Image(s) from Device'}
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleFileUpload}
+                  disabled={uploading}
+                  className="hidden"
+                />
+              </label>
+              <div className="flex-1 flex gap-2">
+                <input
+                  placeholder="Or paste an image URL"
+                  value={form.imageUrlInput}
+                  onChange={(e) => setForm({ ...form, imageUrlInput: e.target.value })}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddUrl();
+                    }
+                  }}
+                  className="flex-1 bg-black border border-neutral-700 rounded-lg px-3 py-2 text-sm outline-none focus:border-[var(--gold)]"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddUrl}
+                  className="text-sm px-3 py-2 border border-neutral-700 rounded-lg hover:border-[var(--gold)] hover:text-[var(--gold)]"
+                >
+                  Add
+                </button>
+              </div>
+            </div>
           </div>
           <textarea
             placeholder="Description"

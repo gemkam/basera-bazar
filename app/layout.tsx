@@ -3,6 +3,8 @@ import "./globals.css";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { CartProvider } from "@/lib/cart-context";
+import { PowerEditorProvider } from "@/lib/power-editor-context";
+import PowerEditorBanner from "@/components/PowerEditorBanner";
 
 export const metadata: Metadata = {
   title: "Basera Bazaar",
@@ -17,11 +19,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-black text-white antialiased min-h-screen flex flex-col">
-        <CartProvider>
-          <Nav />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </CartProvider>
+        <PowerEditorProvider>
+          <CartProvider>
+            <PowerEditorBanner />
+            <Nav />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </CartProvider>
+        </PowerEditorProvider>
       </body>
     </html>
   );

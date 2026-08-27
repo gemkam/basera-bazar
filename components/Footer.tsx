@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import SubscribeForm from './SubscribeForm';
+import EditableText from './EditableText';
 
 export default function Footer() {
   return (
@@ -9,7 +10,12 @@ export default function Footer() {
           <p className="font-bold text-lg mb-2">
             Basera <span className="gold-gradient">Bazaar</span>
           </p>
-          <p className="text-neutral-500 text-sm">Quality products at unbeatable prices.</p>
+          <p className="text-neutral-500 text-sm">
+            <EditableText
+              settingKey="footer_tagline"
+              fallback="Quality products at unbeatable prices."
+            />
+          </p>
         </div>
 
         <div>

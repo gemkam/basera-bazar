@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import CartIcon from './CartIcon';
+import EditableText from './EditableText';
 
 export const revalidate = 60;
 
@@ -15,7 +16,10 @@ export default async function Nav() {
   return (
     <header className="sticky top-0 z-50 bg-black/95 backdrop-blur border-b border-neutral-800">
       <div className="text-center text-xs py-1.5 bg-neutral-950 text-neutral-400 tracking-wide">
-        Welcome to Basera Bazaar — Quality products, unbeatable prices
+        <EditableText
+          settingKey="announcement_text"
+          fallback="Welcome to Basera Bazaar — Quality products, unbeatable prices"
+        />
       </div>
       <nav className="max-w-7xl mx-auto px-4 md:px-6 flex items-center justify-between h-16">
         <Link href="/" className="text-xl font-bold tracking-tight">
