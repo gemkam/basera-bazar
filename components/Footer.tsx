@@ -8,7 +8,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-10 grid md:grid-cols-3 gap-8">
         <div>
           <p className="font-bold text-lg mb-2">
-            Basera <span className="gold-gradient">Bazaar</span>
+            <span className="glass-logo">BaZariFy</span>
           </p>
           <p className="text-neutral-500 text-sm">
             <EditableText
@@ -41,7 +41,7 @@ export default function Footer() {
 
       <div className="border-t border-neutral-900">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 text-sm text-neutral-500 flex flex-col md:flex-row justify-between gap-2">
-          <p>&copy; {new Date().getFullYear()} Basera Bazaar. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} BaZariFy. All rights reserved.</p>
           <p className="text-neutral-600">Cash on Delivery available nationwide</p>
         </div>
       </div>

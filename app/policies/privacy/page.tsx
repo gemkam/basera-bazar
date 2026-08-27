@@ -3,7 +3,7 @@ export default function PrivacyPolicy() {
     <div className="max-w-3xl mx-auto px-4 md:px-6 py-12 prose prose-invert prose-sm">
       <h1 className="text-2xl font-bold mb-6"><span className="gold-gradient">Privacy Policy</span></h1>
       <p className="text-neutral-300 leading-relaxed">
-        Basera Bazaar respects your privacy. We collect only the information necessary to process
+        BaZariFy respects your privacy. We collect only the information necessary to process
         your orders, including your name, phone number, and delivery address. We never sell your
         personal information to third parties.
       </p>

@@ -3,7 +3,7 @@ export default function TermsPage() {
     <div className="max-w-3xl mx-auto px-4 md:px-6 py-12 prose prose-invert prose-sm">
       <h1 className="text-2xl font-bold mb-6"><span className="gold-gradient">Terms & Conditions</span></h1>
       <p className="text-neutral-300 leading-relaxed">
-        By using Basera Bazaar, you agree to purchase products for personal use in accordance with
+        By using BaZariFy, you agree to purchase products for personal use in accordance with
         applicable laws. All product descriptions, images, and prices are provided in good faith
         and are subject to change without prior notice.
       </p>

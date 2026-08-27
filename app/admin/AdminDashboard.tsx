@@ -136,7 +136,7 @@ export default function AdminDashboard({ categories }: { categories: Category[] 
     const doc = new jsPDFModule.default();
 
     doc.setFontSize(16);
-    doc.text('Basera Bazaar — Inventory Report', 14, 15);
+    doc.text('BaZariFy — Inventory Report', 14, 15);
     doc.setFontSize(9);
     doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 21);
 

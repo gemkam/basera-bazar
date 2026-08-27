@@ -33,3 +33,26 @@ body {
 .card:hover {
   border-color: #d4af37;
 }
+
+.glass-logo {
+  position: relative;
+  background: linear-gradient(120deg, #f0d878 0%, #d4af37 45%, #b8912c 55%, #f0d878 100%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: glass-shine 3.5s ease-in-out infinite;
+  text-shadow: 0 0 20px rgba(212, 175, 55, 0.25);
+}
+
+@keyframes glass-shine {
+  0% {
+    background-position: 200% 0;
+  }
+  50% {
+    background-position: 0% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

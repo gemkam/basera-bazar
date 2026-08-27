@@ -7,7 +7,7 @@ import { PowerEditorProvider } from "@/lib/power-editor-context";
 import PowerEditorBanner from "@/components/PowerEditorBanner";
 
 export const metadata: Metadata = {
-  title: "Basera Bazaar",
+  title: "BaZariFy",
   description: "Quality products at unbeatable prices",
 };
 

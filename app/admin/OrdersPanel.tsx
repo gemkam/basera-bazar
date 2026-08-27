@@ -53,7 +53,7 @@ export default function OrdersPanel() {
     const doc = new jsPDFModule.default();
 
     doc.setFontSize(16);
-    doc.text('Basera Bazaar — Customer Orders Report', 14, 15);
+    doc.text('BaZariFy — Customer Orders Report', 14, 15);
     doc.setFontSize(9);
     doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 21);
     doc.text(`Total orders: ${filtered.length}`, 14, 26);
