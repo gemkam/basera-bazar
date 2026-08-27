@@ -1,0 +1,358 @@
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+
+type Category = { id: string; name: string; slug: string };
+type Product = {
+  id: string;
+  handle: string;
+  title: string;
+  description_html: string;
+  category_id: string | null;
+  price: number;
+  compare_at_price: number | null;
+  stock: number;
+  images: string[];
+  is_active: boolean;
+  categories?: { name: string; slug: string };
+};
+
+const emptyForm = {
+  title: '',
+  description_html: '',
+  category_id: '',
+  price: 0,
+  compare_at_price: '' as number | '',
+  stock: 0,
+  images: '',
+};
+
+export default function AdminDashboard({ categories }: { categories: Category[] }) {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [form, setForm] = useState(emptyForm);
+  const [search, setSearch] = useState('');
+  const [savingId, setSavingId] = useState<string | null>(null);
+  const router = useRouter();
+
+  const loadProducts = useCallback(async () => {
+    setLoading(true);
+    const res = await fetch('/api/admin/products');
+    const data = await res.json();
+    setProducts(data.products || []);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    loadProducts();
+  }, [loadProducts]);
+
+  async function handleLogout() {
+    await fetch('/api/admin/logout', { method: 'POST' });
+    router.push('/admin/login');
+    router.refresh();
+  }
+
+  async function handleAdd(e: React.FormEvent) {
+    e.preventDefault();
+    const res = await fetch('/api/admin/products', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: form.title,
+        description_html: form.description_html,
+        category_id: form.category_id || null,
+        price: Number(form.price),
+        compare_at_price: form.compare_at_price ? Number(form.compare_at_price) : null,
+        stock: Number(form.stock),
+        images: form.images.split(',').map((s) => s.trim()).filter(Boolean),
+      }),
+    });
+    if (res.ok) {
+      setForm(emptyForm);
+      setShowAddForm(false);
+      loadProducts();
+    }
+  }
+
+  async function updateField(id: string, field: string, value: unknown) {
+    setSavingId(id);
+    await fetch(`/api/admin/products/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ [field]: value }),
+    });
+    setProducts((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, [field]: value } : p))
+    );
+    setSavingId(null);
+  }
+
+  async function handleDelete(id: string) {
+    if (!confirm('Delete this product permanently?')) return;
+    await fetch(`/api/admin/products/${id}`, { method: 'DELETE' });
+    setProducts((prev) => prev.filter((p) => p.id !== id));
+  }
+
+  async function handleDownloadPdf() {
+    const jsPDFModule = await import('jspdf');
+    const autoTable = (await import('jspdf-autotable')).default;
+    const doc = new jsPDFModule.default();
+
+    doc.setFontSize(16);
+    doc.text('Basera Bazaar — Inventory Report', 14, 15);
+    doc.setFontSize(9);
+    doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 21);
+
+    autoTable(doc, {
+      startY: 26,
+      head: [['Title', 'Category', 'Price', 'Compare At', 'Stock', 'Status']],
+      body: filtered.map((p) => [
+        p.title,
+        p.categories?.name || '-',
+        `Rs. ${p.price.toLocaleString()}`,
+        p.compare_at_price ? `Rs. ${p.compare_at_price.toLocaleString()}` : '-',
+        String(p.stock),
+        p.stock > 0 ? 'In Stock' : 'Out of Stock',
+      ]),
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [30, 30, 30] },
+    });
+
+    doc.save(`basera-bazaar-inventory-${new Date().toISOString().slice(0, 10)}.pdf`);
+  }
+
+  const filtered = products.filter((p) =>
+    p.title.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+        <h1 className="text-2xl font-bold">
+          Admin <span className="gold-gradient">Dashboard</span>
+        </h1>
+        <div className="flex gap-2">
+          <button
+            onClick={handleDownloadPdf}
+            className="text-sm px-4 py-2 border border-neutral-700 rounded-lg hover:border-[var(--gold)] hover:text-[var(--gold)] transition-colors"
+          >
+            Download Inventory PDF
+          </button>
+          <button
+            onClick={() => setShowAddForm((s) => !s)}
+            className="text-sm px-4 py-2 bg-[var(--gold)] text-black font-semibold rounded-lg hover:bg-[var(--gold-light)] transition-colors"
+          >
+            {showAddForm ? 'Cancel' : '+ Add Product'}
+          </button>
+          <button
+            onClick={handleLogout}
+            className="text-sm px-4 py-2 border border-neutral-700 rounded-lg hover:border-red-500 hover:text-red-400 transition-colors"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div className="card rounded-xl p-4">
+          <p className="text-neutral-500 text-xs">Total Products</p>
+          <p className="text-2xl font-bold">{products.length}</p>
+        </div>
+        <div className="card rounded-xl p-4">
+          <p className="text-neutral-500 text-xs">In Stock</p>
+          <p className="text-2xl font-bold text-green-400">
+            {products.filter((p) => p.stock > 0).length}
+          </p>
+        </div>
+        <div className="card rounded-xl p-4">
+          <p className="text-neutral-500 text-xs">Out of Stock</p>
+          <p className="text-2xl font-bold text-red-400">
+            {products.filter((p) => p.stock <= 0).length}
+          </p>
+        </div>
+        <div className="card rounded-xl p-4">
+          <p className="text-neutral-500 text-xs">Total Inventory Value</p>
+          <p className="text-2xl font-bold text-[var(--gold)]">
+            Rs. {products.reduce((sum, p) => sum + p.price * p.stock, 0).toLocaleString()}
+          </p>
+        </div>
+      </div>
+
+      {showAddForm && (
+        <form onSubmit={handleAdd} className="card rounded-xl p-6 mb-6 space-y-3">
+          <h2 className="font-semibold mb-2">New Product</h2>
+          <div className="grid md:grid-cols-2 gap-3">
+            <input
+              placeholder="Title"
+              required
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              className="bg-black border border-neutral-700 rounded-lg px-3 py-2 text-sm outline-none focus:border-[var(--gold)]"
+            />
+            <select
+              value={form.category_id}
+              onChange={(e) => setForm({ ...form, category_id: e.target.value })}
+              className="bg-black border border-neutral-700 rounded-lg px-3 py-2 text-sm outline-none focus:border-[var(--gold)]"
+            >
+              <option value="">Select category</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+            <input
+              type="number"
+              placeholder="Price"
+              required
+              value={form.price}
+              onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
+              className="bg-black border border-neutral-700 rounded-lg px-3 py-2 text-sm outline-none focus:border-[var(--gold)]"
+            />
+            <input
+              type="number"
+              placeholder="Compare at price (optional)"
+              value={form.compare_at_price}
+              onChange={(e) =>
+                setForm({ ...form, compare_at_price: e.target.value ? Number(e.target.value) : '' })
+              }
+              className="bg-black border border-neutral-700 rounded-lg px-3 py-2 text-sm outline-none focus:border-[var(--gold)]"
+            />
+            <input
+              type="number"
+              placeholder="Stock"
+              required
+              value={form.stock}
+              onChange={(e) => setForm({ ...form, stock: Number(e.target.value) })}
+              className="bg-black border border-neutral-700 rounded-lg px-3 py-2 text-sm outline-none focus:border-[var(--gold)]"
+            />
+            <input
+              placeholder="Image URLs (comma separated)"
+              value={form.images}
+              onChange={(e) => setForm({ ...form, images: e.target.value })}
+              className="bg-black border border-neutral-700 rounded-lg px-3 py-2 text-sm outline-none focus:border-[var(--gold)]"
+            />
+          </div>
+          <textarea
+            placeholder="Description"
+            rows={3}
+            value={form.description_html}
+            onChange={(e) => setForm({ ...form, description_html: e.target.value })}
+            className="w-full bg-black border border-neutral-700 rounded-lg px-3 py-2 text-sm outline-none focus:border-[var(--gold)]"
+          />
+          <button
+            type="submit"
+            className="bg-[var(--gold)] text-black font-semibold rounded-lg px-4 py-2 text-sm hover:bg-[var(--gold-light)]"
+          >
+            Save Product
+          </button>
+        </form>
+      )}
+
+      <input
+        placeholder="Search products..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="w-full mb-4 bg-black border border-neutral-700 rounded-lg px-3 py-2 text-sm outline-none focus:border-[var(--gold)]"
+      />
+
+      {loading ? (
+        <p className="text-neutral-500 text-center py-12">Loading products...</p>
+      ) : (
+        <div className="overflow-x-auto card rounded-xl">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-neutral-800 text-left text-neutral-400">
+                <th className="p-3">Product</th>
+                <th className="p-3">Category</th>
+                <th className="p-3">Price</th>
+                <th className="p-3">Stock</th>
+                <th className="p-3">Status</th>
+                <th className="p-3"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((p) => (
+                <tr key={p.id} className="border-b border-neutral-900 hover:bg-neutral-950">
+                  <td className="p-3 max-w-xs">
+                    <p className="line-clamp-2">{p.title}</p>
+                  </td>
+                  <td className="p-3 text-neutral-400">{p.categories?.name || '-'}</td>
+                  <td className="p-3">
+                    {editingId === `${p.id}-price` ? (
+                      <input
+                        type="number"
+                        autoFocus
+                        defaultValue={p.price}
+                        onBlur={(e) => {
+                          updateField(p.id, 'price', Number(e.target.value));
+                          setEditingId(null);
+                        }}
+                        className="w-24 bg-black border border-[var(--gold)] rounded px-2 py-1 text-sm"
+                      />
+                    ) : (
+                      <button
+                        onClick={() => setEditingId(`${p.id}-price`)}
+                        className="hover:text-[var(--gold)]"
+                      >
+                        Rs. {p.price.toLocaleString()}
+                      </button>
+                    )}
+                  </td>
+                  <td className="p-3">
+                    {editingId === `${p.id}-stock` ? (
+                      <input
+                        type="number"
+                        autoFocus
+                        defaultValue={p.stock}
+                        onBlur={(e) => {
+                          updateField(p.id, 'stock', Number(e.target.value));
+                          setEditingId(null);
+                        }}
+                        className="w-20 bg-black border border-[var(--gold)] rounded px-2 py-1 text-sm"
+                      />
+                    ) : (
+                      <button
+                        onClick={() => setEditingId(`${p.id}-stock`)}
+                        className={p.stock <= 0 ? 'text-red-400' : 'hover:text-[var(--gold)]'}
+                      >
+                        {p.stock}
+                      </button>
+                    )}
+                  </td>
+                  <td className="p-3">
+                    <button
+                      onClick={() => updateField(p.id, 'is_active', !p.is_active)}
+                      className={`text-xs px-2 py-1 rounded-full border ${
+                        p.is_active
+                          ? 'border-green-800 text-green-400 bg-green-950/50'
+                          : 'border-neutral-700 text-neutral-500'
+                      }`}
+                    >
+                      {p.is_active ? 'Active' : 'Hidden'}
+                    </button>
+                  </td>
+                  <td className="p-3 text-right">
+                    {savingId === p.id && (
+                      <span className="text-xs text-neutral-500 mr-2">saving...</span>
+                    )}
+                    <button
+                      onClick={() => handleDelete(p.id)}
+                      className="text-xs text-red-400 hover:text-red-300"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}

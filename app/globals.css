@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+:root {
+  --gold: #d4af37;
+  --gold-light: #f0d878;
+}
+
+body {
+  background: #000000;
+}
+
+::selection {
+  background: var(--gold);
+  color: #000;
+}
+
+.gold-text {
+  color: var(--gold);
+}
+
+.gold-gradient {
+  background: linear-gradient(135deg, #f0d878 0%, #d4af37 50%, #b8912c 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.card {
+  background: #0a0a0a;
+  border: 1px solid #1f1f1f;
+}
+
+.card:hover {
+  border-color: #d4af37;
+}
