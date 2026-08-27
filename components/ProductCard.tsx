@@ -9,6 +9,8 @@ export default function ProductCard({ product }: { product: Product }) {
   const { addItem } = useCart();
   const onSale = product.compare_at_price && product.compare_at_price > product.price;
   const outOfStock = product.stock <= 0;
+  const primaryImage = product.images?.[0];
+  const hoverImage = product.images?.[1] || primaryImage;
 
   function handleAddToCart(e: React.MouseEvent) {
     e.preventDefault();
@@ -28,23 +30,33 @@ export default function ProductCard({ product }: { product: Product }) {
       className="card rounded-xl overflow-hidden group transition-colors relative"
     >
       <div className="relative aspect-square bg-neutral-900 overflow-hidden">
-        {product.images?.[0] && (
+        {primaryImage && (
           <Image
-            src={product.images[0]}
+            src={primaryImage}
             alt={product.title}
             fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
+            className="object-cover transition-opacity duration-300 group-hover:opacity-0"
+            sizes="(max-width: 768px) 50vw, 25vw"
+            unoptimized
+          />
+        )}
+        {hoverImage && (
+          <Image
+            src={hoverImage}
+            alt={product.title}
+            fill
+            className="object-cover absolute inset-0 opacity-0 scale-105 transition-all duration-300 group-hover:opacity-100 group-hover:scale-100"
             sizes="(max-width: 768px) 50vw, 25vw"
             unoptimized
           />
         )}
         {onSale && (
-          <span className="absolute top-2 left-2 bg-[var(--gold)] text-black text-[10px] font-bold px-2 py-1 rounded-full">
+          <span className="absolute top-2 left-2 bg-[var(--gold)] text-black text-[10px] font-bold px-2 py-1 rounded-full z-10">
             SALE
           </span>
         )}
         {outOfStock && (
-          <span className="absolute inset-0 bg-black/70 flex items-center justify-center text-xs font-semibold tracking-wide">
+          <span className="absolute inset-0 bg-black/70 flex items-center justify-center text-xs font-semibold tracking-wide z-10">
             OUT OF STOCK
           </span>
         )}
