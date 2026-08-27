@@ -16,6 +16,10 @@ export default function Footer() {
               fallback="Quality products at unbeatable prices."
             />
           </p>
+          <p className="text-neutral-600 text-xs mt-2">
+            WhatsApp:{' '}
+            <EditableText settingKey="whatsapp_number" fallback="923001234567" />
+          </p>
         </div>
 
         <div>

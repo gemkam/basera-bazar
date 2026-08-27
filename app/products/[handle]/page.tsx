@@ -2,8 +2,38 @@ import { supabase } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import AddToCartBox from "./AddToCartBox";
+import ShareOnWhatsApp from "@/components/ShareOnWhatsApp";
+import type { Metadata } from "next";
 
 export const revalidate = 60;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ handle: string }>;
+}): Promise<Metadata> {
+  const { handle } = await params;
+  const { data: product } = await supabase
+    .from("products")
+    .select("title, description_html, images, price")
+    .eq("handle", handle)
+    .single();
+
+  if (!product) return { title: "Product Not Found | BaZariFy" };
+
+  const description = (product.description_html || "").slice(0, 155);
+
+  return {
+    title: `${product.title} | BaZariFy`,
+    description: description || `Buy ${product.title} at BaZariFy - Rs. ${product.price}`,
+    openGraph: {
+      title: product.title,
+      description: description,
+      images: product.images?.[0] ? [{ url: product.images[0] }] : [],
+      type: "website",
+    },
+  };
+}
 
 export default async function ProductPage({
   params,
@@ -23,8 +53,29 @@ export default async function ProductPage({
   const onSale = product.compare_at_price && product.compare_at_price > product.price;
   const outOfStock = product.stock <= 0;
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.title,
+    description: (product.description_html || "").slice(0, 500),
+    image: product.images || [],
+    offers: {
+      "@type": "Offer",
+      priceCurrency: "PKR",
+      price: product.price,
+      availability: outOfStock
+        ? "https://schema.org/OutOfStock"
+        : "https://schema.org/InStock",
+    },
+  };
+
   return (
-    <div className="max-w-6xl mx-auto px-4 md:px-6 py-12 grid md:grid-cols-2 gap-10">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <div className="max-w-6xl mx-auto px-4 md:px-6 py-12 grid md:grid-cols-2 gap-10">
       <div className="space-y-3">
         <div className="relative aspect-square bg-neutral-900 rounded-xl overflow-hidden">
           {product.images?.[0] && (
@@ -87,10 +138,19 @@ export default async function ProductPage({
           />
         </div>
 
+        <div className="mb-6">
+          <ShareOnWhatsApp
+            title={product.title}
+            price={product.price}
+            url={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://basera-bazar-lac.vercel.app'}/products/${product.handle}`}
+          />
+        </div>
+
         <div className="prose prose-invert prose-sm max-w-none text-neutral-300 leading-relaxed whitespace-pre-line">
           {product.description_html}
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

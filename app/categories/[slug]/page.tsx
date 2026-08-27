@@ -1,8 +1,23 @@
 import ProductCard from "@/components/ProductCard";
 import { supabase } from "@/lib/supabase";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 
 export const revalidate = 60;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const { data: category } = await supabase.from("categories").select("name").eq("slug", slug).single();
+  if (!category) return { title: "Category Not Found | BaZariFy" };
+  return {
+    title: `${category.name} | BaZariFy`,
+    description: `Shop ${category.name} at BaZariFy - quality products at unbeatable prices with Cash on Delivery.`,
+  };
+}
 
 export default async function CategoryPage({
   params,

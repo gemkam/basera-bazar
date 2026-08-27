@@ -41,6 +41,9 @@ export default function AdminDashboard({ categories }: { categories: Category[] 
   const [savingId, setSavingId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [tab, setTab] = useState<'products' | 'orders'>('products');
+  const [editProductId, setEditProductId] = useState<string | null>(null);
+  const [editProductForm, setEditProductForm] = useState(emptyForm);
+  const [editUploading, setEditUploading] = useState(false);
   const router = useRouter();
   const { editMode, toggleEditMode } = usePowerEditor();
 
@@ -128,6 +131,70 @@ export default function AdminDashboard({ categories }: { categories: Category[] 
     if (!confirm('Delete this product permanently?')) return;
     await fetch(`/api/admin/products/${id}`, { method: 'DELETE' });
     setProducts((prev) => prev.filter((p) => p.id !== id));
+  }
+
+  function startEditProduct(p: Product) {
+    setEditProductId(p.id);
+    setEditProductForm({
+      title: p.title,
+      description_html: p.description_html || '',
+      category_id: p.category_id || '',
+      price: p.price,
+      compare_at_price: p.compare_at_price ?? '',
+      stock: p.stock,
+      images: p.images || [],
+      imageUrlInput: '',
+    });
+  }
+
+  async function handleEditFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    setEditUploading(true);
+    for (const file of Array.from(files)) {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await fetch('/api/admin/upload', { method: 'POST', body: fd });
+      if (res.ok) {
+        const data = await res.json();
+        setEditProductForm((f) => ({ ...f, images: [...f.images, data.url] }));
+      }
+    }
+    setEditUploading(false);
+    e.target.value = '';
+  }
+
+  function handleEditAddUrl() {
+    const url = editProductForm.imageUrlInput.trim();
+    if (!url) return;
+    setEditProductForm((f) => ({ ...f, images: [...f.images, url], imageUrlInput: '' }));
+  }
+
+  function handleEditRemoveImage(idx: number) {
+    setEditProductForm((f) => ({ ...f, images: f.images.filter((_, i) => i !== idx) }));
+  }
+
+  async function saveEditProduct() {
+    if (!editProductId) return;
+    setSavingId(editProductId);
+    const res = await fetch(`/api/admin/products/${editProductId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: editProductForm.title,
+        description_html: editProductForm.description_html,
+        category_id: editProductForm.category_id || null,
+        price: Number(editProductForm.price),
+        compare_at_price: editProductForm.compare_at_price ? Number(editProductForm.compare_at_price) : null,
+        stock: Number(editProductForm.stock),
+        images: editProductForm.images,
+      }),
+    });
+    if (res.ok) {
+      setEditProductId(null);
+      loadProducts();
+    }
+    setSavingId(null);
   }
 
   async function handleDownloadPdf() {
@@ -459,6 +526,12 @@ export default function AdminDashboard({ categories }: { categories: Category[] 
                       <span className="text-xs text-neutral-500 mr-2">saving...</span>
                     )}
                     <button
+                      onClick={() => startEditProduct(p)}
+                      className="text-xs text-neutral-400 hover:text-[var(--gold)] mr-3"
+                    >
+                      Edit
+                    </button>
+                    <button
                       onClick={() => handleDelete(p.id)}
                       className="text-xs text-red-400 hover:text-red-300"
                     >
@@ -472,6 +545,145 @@ export default function AdminDashboard({ categories }: { categories: Category[] 
         </div>
       )}
       </>
+      )}
+
+      {editProductId && (
+        <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4">
+          <div className="card rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto space-y-3">
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="font-semibold text-lg">Edit Product</h2>
+              <button
+                onClick={() => setEditProductId(null)}
+                className="text-neutral-400 hover:text-white text-xl leading-none"
+              >
+                ×
+              </button>
+            </div>
+            <div className="grid md:grid-cols-2 gap-3">
+              <input
+                placeholder="Title"
+                value={editProductForm.title}
+                onChange={(e) => setEditProductForm({ ...editProductForm, title: e.target.value })}
+                className="bg-black border border-neutral-700 rounded-lg px-3 py-2 text-sm outline-none focus:border-[var(--gold)]"
+              />
+              <select
+                value={editProductForm.category_id}
+                onChange={(e) => setEditProductForm({ ...editProductForm, category_id: e.target.value })}
+                className="bg-black border border-neutral-700 rounded-lg px-3 py-2 text-sm outline-none focus:border-[var(--gold)]"
+              >
+                <option value="">Select category</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="number"
+                placeholder="Price"
+                value={editProductForm.price}
+                onChange={(e) => setEditProductForm({ ...editProductForm, price: Number(e.target.value) })}
+                className="bg-black border border-neutral-700 rounded-lg px-3 py-2 text-sm outline-none focus:border-[var(--gold)]"
+              />
+              <input
+                type="number"
+                placeholder="Compare at price (optional)"
+                value={editProductForm.compare_at_price}
+                onChange={(e) =>
+                  setEditProductForm({
+                    ...editProductForm,
+                    compare_at_price: e.target.value ? Number(e.target.value) : '',
+                  })
+                }
+                className="bg-black border border-neutral-700 rounded-lg px-3 py-2 text-sm outline-none focus:border-[var(--gold)]"
+              />
+              <input
+                type="number"
+                placeholder="Stock"
+                value={editProductForm.stock}
+                onChange={(e) => setEditProductForm({ ...editProductForm, stock: Number(e.target.value) })}
+                className="bg-black border border-neutral-700 rounded-lg px-3 py-2 text-sm outline-none focus:border-[var(--gold)]"
+              />
+            </div>
+
+            <textarea
+              placeholder="Description"
+              rows={3}
+              value={editProductForm.description_html}
+              onChange={(e) => setEditProductForm({ ...editProductForm, description_html: e.target.value })}
+              className="w-full bg-black border border-neutral-700 rounded-lg px-3 py-2 text-sm outline-none focus:border-[var(--gold)]"
+            />
+
+            <div className="space-y-2">
+              <p className="text-xs text-neutral-400">Product Images</p>
+              <div className="flex flex-wrap gap-2">
+                {editProductForm.images.map((img, idx) => (
+                  <div key={idx} className="relative w-16 h-16 rounded-lg overflow-hidden border border-neutral-700">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => handleEditRemoveImage(idx)}
+                      className="absolute top-0 right-0 bg-black/70 text-red-400 text-xs w-5 h-5 flex items-center justify-center"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div className="flex flex-col md:flex-row gap-2">
+                <label className="flex-1 cursor-pointer text-center text-sm border border-dashed border-neutral-700 rounded-lg px-3 py-2 hover:border-[var(--gold)] transition-colors">
+                  {editUploading ? 'Uploading...' : '📁 Upload Image(s)'}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleEditFileUpload}
+                    disabled={editUploading}
+                    className="hidden"
+                  />
+                </label>
+                <div className="flex-1 flex gap-2">
+                  <input
+                    placeholder="Or paste an image URL"
+                    value={editProductForm.imageUrlInput}
+                    onChange={(e) => setEditProductForm({ ...editProductForm, imageUrlInput: e.target.value })}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleEditAddUrl();
+                      }
+                    }}
+                    className="flex-1 bg-black border border-neutral-700 rounded-lg px-3 py-2 text-sm outline-none focus:border-[var(--gold)]"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleEditAddUrl}
+                    className="text-sm px-3 py-2 border border-neutral-700 rounded-lg hover:border-[var(--gold)] hover:text-[var(--gold)]"
+                  >
+                    Add
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <button
+                onClick={saveEditProduct}
+                disabled={savingId === editProductId}
+                className="flex-1 bg-[var(--gold)] text-black font-semibold rounded-lg py-2.5 hover:bg-[var(--gold-light)] disabled:opacity-50"
+              >
+                {savingId === editProductId ? 'Saving...' : 'Save Changes'}
+              </button>
+              <button
+                onClick={() => setEditProductId(null)}
+                className="px-6 border border-neutral-700 rounded-lg hover:border-neutral-500"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
