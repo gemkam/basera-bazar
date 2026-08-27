@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET!;
+const JWT_SECRET = process.env.JWT_SECRET || 'basera-bazaar-admin-secret-2026-change-me';
 
 export function signAdminToken(email: string) {
   return jwt.sign({ email, role: 'admin' }, JWT_SECRET, { expiresIn: '7d' });

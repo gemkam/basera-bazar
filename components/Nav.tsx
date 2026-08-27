@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+import CartIcon from './CartIcon';
 
 export const revalidate = 60;
 
@@ -33,12 +34,15 @@ export default async function Nav() {
             </Link>
           ))}
         </div>
-        <Link
-          href="/admin"
-          className="text-xs px-3 py-1.5 border border-neutral-700 rounded-full hover:border-[var(--gold)] hover:text-[var(--gold)] transition-colors"
-        >
-          Admin
-        </Link>
+        <div className="flex items-center gap-4">
+          <CartIcon />
+          <Link
+            href="/admin"
+            className="text-xs px-3 py-1.5 border border-neutral-700 rounded-full hover:border-[var(--gold)] hover:text-[var(--gold)] transition-colors"
+          >
+            Admin
+          </Link>
+        </div>
       </nav>
     </header>
   );

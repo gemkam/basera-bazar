@@ -1,15 +1,31 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Product } from '@/lib/supabase';
+import { useCart } from '@/lib/cart-context';
 
 export default function ProductCard({ product }: { product: Product }) {
+  const { addItem } = useCart();
   const onSale = product.compare_at_price && product.compare_at_price > product.price;
   const outOfStock = product.stock <= 0;
+
+  function handleAddToCart(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    addItem({
+      productId: product.id,
+      handle: product.handle,
+      title: product.title,
+      price: product.price,
+      image: product.images?.[0] || '',
+    });
+  }
 
   return (
     <Link
       href={`/products/${product.handle}`}
-      className="card rounded-xl overflow-hidden group transition-colors"
+      className="card rounded-xl overflow-hidden group transition-colors relative"
     >
       <div className="relative aspect-square bg-neutral-900 overflow-hidden">
         {product.images?.[0] && (
@@ -43,6 +59,14 @@ export default function ProductCard({ product }: { product: Product }) {
             </span>
           )}
         </div>
+        {!outOfStock && (
+          <button
+            onClick={handleAddToCart}
+            className="mt-2 w-full text-xs font-semibold bg-[var(--gold)] text-black rounded-lg py-1.5 hover:bg-[var(--gold-light)] transition-colors"
+          >
+            + Add to Cart
+          </button>
+        )}
       </div>
     </Link>
   );

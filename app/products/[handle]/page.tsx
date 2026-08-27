@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import Image from "next/image";
+import AddToCartBox from "./AddToCartBox";
 
 export const revalidate = 60;
 
@@ -71,6 +72,19 @@ export default async function ProductPage({
               In Stock ({product.stock} available)
             </span>
           )}
+        </div>
+
+        <div className="mb-6">
+          <AddToCartBox
+            product={{
+              id: product.id,
+              handle: product.handle,
+              title: product.title,
+              price: product.price,
+              images: product.images,
+              stock: product.stock,
+            }}
+          />
         </div>
 
         <div className="prose prose-invert prose-sm max-w-none text-neutral-300 leading-relaxed whitespace-pre-line">
