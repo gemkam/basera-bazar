@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { getServiceSupabase } from '@/lib/supabase';
 
 export async function POST(req: NextRequest) {
+  const supabase = getServiceSupabase();
   const body = await req.json();
   const { customer_name, email, phone, address, city, notes, items } = body;
 
