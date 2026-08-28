@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePowerEditor } from '@/lib/power-editor-context';
 import OrdersPanel from './OrdersPanel';
+import AccountPanel from './AccountPanel';
 
 type Category = { id: string; name: string; slug: string };
 type Product = {
@@ -40,7 +41,7 @@ export default function AdminDashboard({ categories }: { categories: Category[] 
   const [search, setSearch] = useState('');
   const [savingId, setSavingId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [tab, setTab] = useState<'products' | 'orders'>('products');
+  const [tab, setTab] = useState<'products' | 'orders' | 'account'>('products');
   const [editProductId, setEditProductId] = useState<string | null>(null);
   const [editProductForm, setEditProductForm] = useState(emptyForm);
   const [editUploading, setEditUploading] = useState(false);
@@ -288,10 +289,22 @@ export default function AdminDashboard({ categories }: { categories: Category[] 
         >
           Orders &amp; Customers
         </button>
+        <button
+          onClick={() => setTab('account')}
+          className={`text-sm px-4 py-2 border-b-2 transition-colors ${
+            tab === 'account'
+              ? 'border-[var(--gold)] text-[var(--gold)]'
+              : 'border-transparent text-neutral-500 hover:text-white'
+          }`}
+        >
+          Account
+        </button>
       </div>
 
       {tab === 'orders' ? (
         <OrdersPanel />
+      ) : tab === 'account' ? (
+        <AccountPanel />
       ) : (
       <>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
