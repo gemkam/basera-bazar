@@ -1,6 +1,7 @@
 import HeroSlideshow from "@/components/HeroSlideshow";
 import ProductCard from "@/components/ProductCard";
 import TrendingSection from "@/components/TrendingSection";
+import PromoBanner from "@/components/PromoBanner";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 
@@ -62,6 +63,8 @@ export default async function Home() {
           ))}
         </div>
       </section>
+
+      <PromoBanner />
     </div>
   );
 }

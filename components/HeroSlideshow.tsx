@@ -9,11 +9,31 @@ export default function HeroSlideshow() {
   const [current, setCurrent] = useState(0);
   const [playing, setPlaying] = useState(true);
   const [uploadingSlot, setUploadingSlot] = useState<number | null>(null);
-  const fileInputRefs = [useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null)];
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const sectionRef = useRef<HTMLElement>(null);
+  const fileInputRefs = [
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+  ];
 
-  const slides = [
-    { src: settings.hero_image_1 || '/hero/hero1.webp', alt: 'Hero banner 1', key: 'hero_image_1' },
-    { src: settings.hero_image_2 || '/hero/hero2.webp', alt: 'Hero banner 2', key: 'hero_image_2' },
+  type Slide =
+    | { type: 'image'; src: string; alt: string; key: string }
+    | { type: 'video'; src: string; key: string };
+
+  const slides: Slide[] = [
+    { type: 'image', src: settings.hero_image_1 || '/hero/hero1.webp', alt: 'Hero banner 1', key: 'hero_image_1' },
+    { type: 'image', src: settings.hero_image_2 || '/hero/hero2.webp', alt: 'Hero banner 2', key: 'hero_image_2' },
+    { type: 'image', src: settings.hero_image_3 || '/promo/new-arrivals.webp', alt: 'New Arrivals', key: 'hero_image_3' },
+    { type: 'image', src: settings.hero_image_4 || '/promo/cod-nationwide.webp', alt: 'Cash on Delivery', key: 'hero_image_4' },
+    { type: 'image', src: settings.hero_image_5 || '/promo/quality-guarantee.webp', alt: 'Quality Guaranteed', key: 'hero_image_5' },
+    {
+      type: 'video',
+      src: settings.hero_video_url || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+      key: 'hero_video_url',
+    },
   ];
 
   const next = useCallback(() => {
@@ -25,6 +45,22 @@ export default function HeroSlideshow() {
     const timer = setInterval(next, 4500);
     return () => clearInterval(timer);
   }, [playing, next, editMode]);
+
+  // Scroll-driven parallax + zoom
+  useEffect(() => {
+    function handleScroll() {
+      const el = sectionRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const viewportH = window.innerHeight;
+      // progress: 0 when hero top is at viewport top, 1 when hero has scrolled fully past
+      const progress = Math.min(Math.max((0 - rect.top) / (rect.height || viewportH), 0), 1.5);
+      setScrollProgress(progress);
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   async function handleReplace(idx: number, file: File) {
     setUploadingSlot(idx);
@@ -42,32 +78,29 @@ export default function HeroSlideshow() {
     return <section className="relative w-full aspect-[16/9] md:aspect-[21/8] bg-black" />;
   }
 
-  // Edit mode: show both banners side-by-side so both can be replaced easily
+  // Edit mode: show all slides as a grid, each replaceable
   if (editMode) {
     return (
-      <section className="w-full grid grid-cols-2 gap-1 bg-black">
+      <section className="w-full grid grid-cols-2 md:grid-cols-3 gap-1 bg-black">
         {slides.map((slide, i) => (
-          <div key={slide.key} className="relative aspect-[16/9] md:aspect-[21/16] bg-neutral-900">
-            <Image
-              src={slide.src}
-              alt={slide.alt}
-              fill
-              className="object-cover"
-              sizes="50vw"
-              unoptimized={slide.src.startsWith('http')}
-            />
+          <div key={slide.key} className="relative aspect-square bg-neutral-900">
+            {slide.type === 'video' ? (
+              <video src={slide.src} muted loop className="w-full h-full object-cover" />
+            ) : (
+              <Image src={slide.src} alt={slide.alt} fill className="object-cover" sizes="33vw" unoptimized={slide.src.startsWith('http')} />
+            )}
             <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
               <button
                 onClick={() => fileInputRefs[i].current?.click()}
                 disabled={uploadingSlot === i}
-                className="bg-[var(--gold)] text-black text-sm font-semibold px-4 py-2 rounded-lg hover:bg-[var(--gold-light)] transition-colors"
+                className="bg-[var(--gold)] text-black text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-[var(--gold-light)] transition-colors"
               >
-                {uploadingSlot === i ? 'Uploading...' : `📷 Replace Banner ${i + 1}`}
+                {uploadingSlot === i ? 'Uploading...' : slide.type === 'video' ? '🎬 Replace' : '📷 Replace'}
               </button>
               <input
                 ref={fileInputRefs[i]}
                 type="file"
-                accept="image/*"
+                accept={slide.type === 'video' ? 'video/*' : 'image/*'}
                 className="hidden"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
@@ -82,25 +115,46 @@ export default function HeroSlideshow() {
     );
   }
 
-  // Normal mode: auto-rotating slideshow
+  // Normal mode: auto-rotating slideshow with scroll parallax + zoom
+  const parallaxY = scrollProgress * 60; // px shift
+  const zoomScale = 1 + Math.min(scrollProgress, 1) * 0.15; // up to 1.15x
+
   return (
-    <section className="relative w-full aspect-[16/9] md:aspect-[21/8] bg-black overflow-hidden">
+    <section
+      ref={sectionRef}
+      className="relative w-full aspect-[16/9] md:aspect-[21/8] bg-black overflow-hidden"
+    >
       {slides.map((slide, i) => (
         <div
           key={slide.key}
           className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
             i === current ? 'opacity-100 z-10' : 'opacity-0 z-0'
           }`}
+          style={{
+            transform: `translateY(${parallaxY}px) scale(${zoomScale})`,
+            willChange: 'transform',
+          }}
         >
-          <Image
-            src={slide.src}
-            alt={slide.alt}
-            fill
-            priority={i === 0}
-            className="object-cover"
-            sizes="100vw"
-            unoptimized={slide.src.startsWith('http')}
-          />
+          {slide.type === 'video' ? (
+            <video
+              src={slide.src}
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <Image
+              src={slide.src}
+              alt={slide.alt}
+              fill
+              priority={i === 0}
+              className="object-cover"
+              sizes="100vw"
+              unoptimized={slide.src.startsWith('http')}
+            />
+          )}
         </div>
       ))}
 
