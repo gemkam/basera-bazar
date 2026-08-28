@@ -34,6 +34,63 @@ body {
   border-color: #d4af37;
 }
 
+.category-glow {
+  position: absolute;
+  bottom: 0;
+  left: 10%;
+  right: 10%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #d4af37, transparent);
+  opacity: 0;
+  transform: scaleX(0.3);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  pointer-events: none;
+}
+
+.category-card:hover .category-glow {
+  opacity: 1;
+  transform: scaleX(1);
+  box-shadow: 0 0 20px 4px rgba(212, 175, 55, 0.6);
+}
+
+.category-card {
+  box-shadow: 0 0 0 rgba(212, 175, 55, 0);
+  transition: box-shadow 0.35s ease, transform 0.3s ease, border-color 0.3s ease;
+}
+
+.category-card:hover {
+  box-shadow: 0 8px 24px -8px rgba(212, 175, 55, 0.35);
+}
+
+@keyframes kinetic-reveal {
+  0% {
+    transform: translateY(110%) rotate(4deg);
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.kinetic-word {
+  transform: translateY(110%);
+  opacity: 0;
+  animation: kinetic-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.hero-text-dim {
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.85) 0%,
+    rgba(0, 0, 0, 0.35) 45%,
+    rgba(0, 0, 0, 0.15) 100%
+  );
+}
+
 .glass-logo {
   position: relative;
   background: linear-gradient(120deg, #f0d878 0%, #d4af37 45%, #b8912c 55%, #f0d878 100%);
