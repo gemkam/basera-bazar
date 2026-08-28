@@ -5,7 +5,7 @@ import { verifyAdminToken } from '@/lib/auth';
 
 export async function PUT(req: NextRequest) {
   const token = req.cookies.get('admin_session')?.value;
-  const payload = token ? verifyAdminToken(token) : null;
+  const payload = token ? await verifyAdminToken(token) : null;
 
   if (!payload) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

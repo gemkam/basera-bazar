@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyAdminToken } from '@/lib/auth';
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Allow login page and login API through
@@ -11,7 +11,7 @@ export function middleware(req: NextRequest) {
 
   if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
     const token = req.cookies.get('admin_session')?.value;
-    const payload = token ? verifyAdminToken(token) : null;
+    const payload = token ? await verifyAdminToken(token) : null;
 
     if (!payload) {
       if (pathname.startsWith('/api/admin')) {
