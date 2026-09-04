@@ -6,6 +6,7 @@ import Image from 'next/image';
 import type { Product } from '@/lib/supabase';
 import { useCart } from '@/lib/cart-context';
 import { usePowerEditor } from '@/lib/power-editor-context';
+import { trackRecentlyViewed } from './RecentlyViewed';
 
 export default function ProductCard({ product: initialProduct }: { product: Product }) {
   const { addItem } = useCart();
@@ -14,12 +15,29 @@ export default function ProductCard({ product: initialProduct }: { product: Prod
   const [editingPrice, setEditingPrice] = useState(false);
   const [priceDraft, setPriceDraft] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [showPositionPanel, setShowPositionPanel] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const onSale = product.compare_at_price && product.compare_at_price > product.price;
   const outOfStock = product.stock <= 0;
   const primaryImage = product.images?.[0];
   const hoverImage = product.images?.[1] || primaryImage;
+
+  const [posXStr, posYStr] = (product.image_position || '50% 50%').split(' ');
+  const posX = parseInt(posXStr) || 50;
+  const posY = parseInt(posYStr) || 50;
+
+  async function savePosition(newX: number, newY: number) {
+    const clampedX = Math.min(100, Math.max(0, newX));
+    const clampedY = Math.min(100, Math.max(0, newY));
+    const value = `${clampedX}% ${clampedY}%`;
+    await fetch(`/api/admin/products/${product.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image_position: value }),
+    });
+    setProduct((p) => ({ ...p, image_position: value }));
+  }
 
   function handleAddToCart(e: React.MouseEvent) {
     e.preventDefault();
@@ -74,16 +92,21 @@ export default function ProductCard({ product: initialProduct }: { product: Prod
     <Link
       href={`/products/${product.handle}`}
       onClick={(e) => {
-        if (editMode) e.preventDefault();
+        if (editMode) {
+          e.preventDefault();
+          return;
+        }
+        trackRecentlyViewed(product.id);
       }}
       className="card rounded-xl overflow-hidden group relative block transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-black/60"
     >
-      <div className="relative aspect-square bg-neutral-900 overflow-hidden">
+      <div className="relative aspect-square bg-neutral-50 overflow-hidden">
         {primaryImage && (
           <Image
             src={primaryImage}
             alt={product.title}
             fill
+            style={{ objectPosition: `${posX}% ${posY}%` }}
             className={`object-cover transition-all duration-500 ease-out ${
               editMode ? '' : 'group-hover:opacity-0 group-hover:scale-110'
             }`}
@@ -96,6 +119,7 @@ export default function ProductCard({ product: initialProduct }: { product: Prod
             src={hoverImage}
             alt={product.title}
             fill
+            style={{ objectPosition: `${posX}% ${posY}%` }}
             className="object-cover absolute inset-0 opacity-0 scale-110 transition-all duration-500 ease-out group-hover:opacity-100 group-hover:scale-100"
             sizes="(max-width: 768px) 50vw, 25vw"
             unoptimized
@@ -103,7 +127,7 @@ export default function ProductCard({ product: initialProduct }: { product: Prod
         )}
 
         {onSale && (
-          <span className="absolute top-2 left-2 bg-[var(--gold)] text-black text-[10px] font-bold px-2 py-1 rounded-full z-10">
+          <span className="absolute top-2 left-2 bg-[var(--gold)] text-white text-[10px] font-bold px-2 py-1 rounded-full z-10">
             SALE
           </span>
         )}
@@ -114,7 +138,7 @@ export default function ProductCard({ product: initialProduct }: { product: Prod
         )}
 
         {editMode && (
-          <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-20">
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center gap-2 z-20">
             <button
               onClick={(e) => {
                 e.preventDefault();
@@ -122,9 +146,19 @@ export default function ProductCard({ product: initialProduct }: { product: Prod
                 fileInputRef.current?.click();
               }}
               disabled={uploading}
-              className="bg-[var(--gold)] text-black text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-[var(--gold-light)]"
+              className="bg-[var(--gold)] text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-[var(--gold-light)]"
             >
               {uploading ? 'Uploading...' : '📷 Replace'}
+            </button>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setShowPositionPanel((p) => !p);
+              }}
+              className="bg-neutral-900 text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-neutral-800"
+            >
+              🎯 Position
             </button>
             <input
               ref={fileInputRef}
@@ -137,6 +171,29 @@ export default function ProductCard({ product: initialProduct }: { product: Prod
           </div>
         )}
 
+        {editMode && showPositionPanel && (
+          <div
+            className="absolute bottom-2 right-2 bg-black/80 rounded-xl p-2 grid grid-cols-3 gap-1 w-28 z-30"
+            onClick={(e) => e.preventDefault()}
+          >
+            <div />
+            <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); savePosition(posX, posY - 5); }} className="bg-white/10 hover:bg-white/20 text-white rounded py-1 text-xs">▲</button>
+            <div />
+            <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); savePosition(posX - 5, posY); }} className="bg-white/10 hover:bg-white/20 text-white rounded py-1 text-xs">◄</button>
+            <button
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); savePosition(50, 50); }}
+              title="Reset to center"
+              className="bg-white/10 hover:bg-white/20 text-white rounded py-1 text-[10px]"
+            >
+              ⟲
+            </button>
+            <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); savePosition(posX + 5, posY); }} className="bg-white/10 hover:bg-white/20 text-white rounded py-1 text-xs">►</button>
+            <div />
+            <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); savePosition(posX, posY + 5); }} className="bg-white/10 hover:bg-white/20 text-white rounded py-1 text-xs">▼</button>
+            <div />
+          </div>
+        )}
+
         {!editMode && (
           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10">
             <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out bg-gradient-to-r from-transparent via-white/10 to-transparent" />
@@ -145,7 +202,7 @@ export default function ProductCard({ product: initialProduct }: { product: Prod
       </div>
 
       <div className="p-3">
-        <h3 className="text-sm text-neutral-200 line-clamp-2 min-h-[2.5rem] transition-colors duration-300 group-hover:text-white">
+        <h3 className="text-sm text-neutral-800 line-clamp-2 min-h-[2.5rem] transition-colors duration-300 group-hover:text-neutral-900">
           {product.title}
         </h3>
         <div className="mt-2 flex items-center gap-2">
@@ -188,7 +245,7 @@ export default function ProductCard({ product: initialProduct }: { product: Prod
         {!outOfStock && !editMode && (
           <button
             onClick={handleAddToCart}
-            className="mt-2 w-full text-xs font-semibold bg-[var(--gold)] text-black rounded-lg py-1.5 transition-all duration-300 hover:bg-[var(--gold-light)] opacity-90 group-hover:opacity-100 translate-y-0.5 group-hover:translate-y-0 group-hover:shadow-md group-hover:shadow-[var(--gold)]/30"
+            className="mt-2 w-full text-xs font-semibold bg-[var(--gold)] text-white rounded-lg py-1.5 transition-all duration-300 hover:bg-[var(--gold-light)] opacity-90 group-hover:opacity-100 translate-y-0.5 group-hover:translate-y-0 group-hover:shadow-md group-hover:shadow-[var(--gold)]/30"
           >
             + Add to Cart
           </button>

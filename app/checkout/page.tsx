@@ -55,77 +55,77 @@ export default function CheckoutPage() {
         </h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <p className="text-red-400 text-sm bg-red-950/50 border border-red-900 rounded-lg px-3 py-2">
+            <p className="text-red-700 text-sm bg-red-50 border border-red-200 rounded-lg px-3 py-2">
               {error}
             </p>
           )}
           <div>
-            <label className="text-xs text-neutral-400">Full Name</label>
+            <label className="text-xs text-neutral-600">Full Name</label>
             <input
               required
               value={form.customer_name}
               onChange={(e) => setForm({ ...form, customer_name: e.target.value })}
-              className="w-full mt-1 bg-black border border-neutral-700 rounded-lg px-3 py-2.5 text-sm focus:border-[var(--gold)] outline-none"
+              className="w-full mt-1 bg-neutral-50 border border-neutral-300 rounded-lg px-3 py-2.5 text-sm focus:border-[var(--gold)] outline-none"
             />
           </div>
           <div>
-            <label className="text-xs text-neutral-400">Phone Number</label>
+            <label className="text-xs text-neutral-600">Phone Number</label>
             <input
               required
               type="tel"
               value={form.phone}
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
-              className="w-full mt-1 bg-black border border-neutral-700 rounded-lg px-3 py-2.5 text-sm focus:border-[var(--gold)] outline-none"
+              className="w-full mt-1 bg-neutral-50 border border-neutral-300 rounded-lg px-3 py-2.5 text-sm focus:border-[var(--gold)] outline-none"
             />
           </div>
           <div>
-            <label className="text-xs text-neutral-400">Email Address</label>
+            <label className="text-xs text-neutral-600">Email Address</label>
             <input
               required
               type="email"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
-              className="w-full mt-1 bg-black border border-neutral-700 rounded-lg px-3 py-2.5 text-sm focus:border-[var(--gold)] outline-none"
+              className="w-full mt-1 bg-neutral-50 border border-neutral-300 rounded-lg px-3 py-2.5 text-sm focus:border-[var(--gold)] outline-none"
             />
           </div>
           <div>
-            <label className="text-xs text-neutral-400">Delivery Address</label>
+            <label className="text-xs text-neutral-600">Delivery Address</label>
             <textarea
               required
               rows={2}
               value={form.address}
               onChange={(e) => setForm({ ...form, address: e.target.value })}
-              className="w-full mt-1 bg-black border border-neutral-700 rounded-lg px-3 py-2.5 text-sm focus:border-[var(--gold)] outline-none"
+              className="w-full mt-1 bg-neutral-50 border border-neutral-300 rounded-lg px-3 py-2.5 text-sm focus:border-[var(--gold)] outline-none"
             />
           </div>
           <div>
-            <label className="text-xs text-neutral-400">City</label>
+            <label className="text-xs text-neutral-600">City</label>
             <input
               required
               value={form.city}
               onChange={(e) => setForm({ ...form, city: e.target.value })}
-              className="w-full mt-1 bg-black border border-neutral-700 rounded-lg px-3 py-2.5 text-sm focus:border-[var(--gold)] outline-none"
+              className="w-full mt-1 bg-neutral-50 border border-neutral-300 rounded-lg px-3 py-2.5 text-sm focus:border-[var(--gold)] outline-none"
             />
           </div>
           <div>
-            <label className="text-xs text-neutral-400">Order Notes (optional)</label>
+            <label className="text-xs text-neutral-600">Order Notes (optional)</label>
             <textarea
               rows={2}
               value={form.notes}
               onChange={(e) => setForm({ ...form, notes: e.target.value })}
-              className="w-full mt-1 bg-black border border-neutral-700 rounded-lg px-3 py-2.5 text-sm focus:border-[var(--gold)] outline-none"
+              className="w-full mt-1 bg-neutral-50 border border-neutral-300 rounded-lg px-3 py-2.5 text-sm focus:border-[var(--gold)] outline-none"
             />
           </div>
 
           <div className="card rounded-xl p-4">
             <p className="text-sm font-semibold mb-1">Payment Method</p>
-            <p className="text-neutral-400 text-sm">💵 Cash on Delivery (COD)</p>
+            <p className="text-neutral-600 text-sm">💵 Cash on Delivery (COD)</p>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[var(--gold)] text-black font-semibold rounded-lg py-3 hover:bg-[var(--gold-light)] transition-colors disabled:opacity-50"
+            className="w-full bg-[var(--gold)] text-white font-semibold rounded-lg py-3 hover:bg-[var(--gold-light)] transition-colors disabled:opacity-50"
           >
             {loading ? 'Placing Order...' : `Place Order — Rs. ${subtotal.toLocaleString()}`}
           </button>
@@ -137,7 +137,7 @@ export default function CheckoutPage() {
         <div className="card rounded-xl p-4 space-y-3">
           {items.map((item) => (
             <div key={item.productId} className="flex justify-between text-sm">
-              <span className="text-neutral-300">
+              <span className="text-neutral-700">
                 {item.title} × {item.quantity}
               </span>
               <span className="text-[var(--gold)]">
@@ -145,7 +145,7 @@ export default function CheckoutPage() {
               </span>
             </div>
           ))}
-          <div className="border-t border-neutral-800 pt-3 flex justify-between font-semibold">
+          <div className="border-t border-neutral-200 pt-3 flex justify-between font-semibold">
             <span>Total</span>
             <span className="text-[var(--gold)]">Rs. {subtotal.toLocaleString()}</span>
           </div>

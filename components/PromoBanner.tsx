@@ -64,7 +64,7 @@ export default function PromoBanner() {
     <section className="max-w-7xl mx-auto px-4 md:px-6 py-8">
       <div
         ref={ref}
-        className="relative w-full aspect-[2/1] md:aspect-[21/9] rounded-2xl overflow-hidden bg-neutral-900"
+        className="relative w-full aspect-[2/1] md:aspect-[21/9] rounded-2xl overflow-hidden bg-neutral-50"
       >
         {slides.map((slide, i) => (
           <div

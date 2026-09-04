@@ -33,6 +33,7 @@ export type Product = {
   compare_at_price: number | null;
   stock: number;
   images: string[];
+  image_position: string | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;

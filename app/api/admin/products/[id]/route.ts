@@ -18,6 +18,7 @@ export async function PUT(
     'compare_at_price',
     'stock',
     'images',
+    'image_position',
     'is_active',
   ]) {
     if (key in body) updates[key] = body[key];

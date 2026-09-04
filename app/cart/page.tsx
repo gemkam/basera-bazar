@@ -16,7 +16,7 @@ export default function CartPage() {
         <p className="text-neutral-500 mb-6">Add some products to get started.</p>
         <Link
           href="/products"
-          className="inline-block bg-[var(--gold)] text-black font-semibold px-6 py-2.5 rounded-lg hover:bg-[var(--gold-light)] transition-colors"
+          className="inline-block bg-[var(--gold)] text-white font-semibold px-6 py-2.5 rounded-lg hover:bg-[var(--gold-light)] transition-colors"
         >
           Browse Products
         </Link>
@@ -33,7 +33,7 @@ export default function CartPage() {
       <div className="space-y-4 mb-8">
         {items.map((item) => (
           <div key={item.productId} className="card rounded-xl p-4 flex items-center gap-4">
-            <div className="relative w-20 h-20 bg-neutral-900 rounded-lg overflow-hidden flex-shrink-0">
+            <div className="relative w-20 h-20 bg-neutral-50 rounded-lg overflow-hidden flex-shrink-0">
               {item.image && (
                 <Image src={item.image} alt={item.title} fill className="object-cover" unoptimized />
               )}
@@ -42,24 +42,24 @@ export default function CartPage() {
               <p className="text-sm line-clamp-2">{item.title}</p>
               <p className="text-[var(--gold)] font-semibold mt-1">Rs. {item.price.toLocaleString()}</p>
             </div>
-            <div className="flex items-center border border-neutral-700 rounded-lg">
+            <div className="flex items-center border border-neutral-300 rounded-lg">
               <button
                 onClick={() => updateQuantity(item.productId, item.quantity - 1)}
-                className="px-3 py-1 text-neutral-400 hover:text-white"
+                className="px-3 py-1 text-neutral-600 hover:text-neutral-900"
               >
                 −
               </button>
               <span className="px-3 text-sm">{item.quantity}</span>
               <button
                 onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                className="px-3 py-1 text-neutral-400 hover:text-white"
+                className="px-3 py-1 text-neutral-600 hover:text-neutral-900"
               >
                 +
               </button>
             </div>
             <button
               onClick={() => removeItem(item.productId)}
-              className="text-xs text-red-400 hover:text-red-300"
+              className="text-xs text-red-600 hover:text-red-700"
             >
               Remove
             </button>
@@ -69,12 +69,12 @@ export default function CartPage() {
 
       <div className="card rounded-xl p-6 flex items-center justify-between">
         <div>
-          <p className="text-neutral-400 text-sm">Subtotal</p>
+          <p className="text-neutral-600 text-sm">Subtotal</p>
           <p className="text-2xl font-bold text-[var(--gold)]">Rs. {subtotal.toLocaleString()}</p>
         </div>
         <Link
           href="/checkout"
-          className="bg-[var(--gold)] text-black font-semibold px-8 py-3 rounded-lg hover:bg-[var(--gold-light)] transition-colors"
+          className="bg-[var(--gold)] text-white font-semibold px-8 py-3 rounded-lg hover:bg-[var(--gold-light)] transition-colors"
         >
           Proceed to Checkout
         </Link>

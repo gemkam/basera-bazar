@@ -1,7 +1,10 @@
 import HeroSlideshow from "@/components/HeroSlideshow";
+import HeroExtras from "@/components/HeroExtras";
 import ProductCard from "@/components/ProductCard";
 import TrendingSection from "@/components/TrendingSection";
+import RecentlyViewed from "@/components/RecentlyViewed";
 import PromoBanner from "@/components/PromoBanner";
+import ContactForm from "@/components/ContactForm";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 
@@ -28,6 +31,7 @@ export default async function Home() {
   return (
     <div>
       <HeroSlideshow />
+      <HeroExtras />
 
       <section className="max-w-7xl mx-auto px-4 md:px-6 py-12">
         <h2 className="text-2xl font-bold mb-6 text-center">
@@ -60,7 +64,7 @@ export default async function Home() {
           <h2 className="text-2xl font-bold">
             🔥 Best <span className="gold-gradient">Deals</span>
           </h2>
-          <Link href="/products" className="text-sm text-neutral-400 hover:text-white">
+          <Link href="/products" className="text-sm text-neutral-600 hover:text-neutral-900">
             View all →
           </Link>
         </div>
@@ -71,7 +75,11 @@ export default async function Home() {
         </div>
       </section>
 
+      <RecentlyViewed />
+
       <PromoBanner />
+
+      <ContactForm />
     </div>
   );
 }

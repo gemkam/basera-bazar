@@ -39,30 +39,30 @@ export default function AddToCartBox({
 
   return (
     <div className="flex items-center gap-3">
-      <div className="flex items-center border border-neutral-700 rounded-lg">
+      <div className="flex items-center border border-neutral-300 rounded-lg">
         <button
           onClick={() => setQty((q) => Math.max(1, q - 1))}
-          className="px-3 py-2 text-neutral-400 hover:text-white"
+          className="px-3 py-2 text-neutral-600 hover:text-neutral-900"
         >
           −
         </button>
         <span className="px-3 text-sm">{qty}</span>
         <button
           onClick={() => setQty((q) => Math.min(product.stock, q + 1))}
-          className="px-3 py-2 text-neutral-400 hover:text-white"
+          className="px-3 py-2 text-neutral-600 hover:text-neutral-900"
         >
           +
         </button>
       </div>
       <button
         onClick={handleAdd}
-        className="flex-1 bg-[var(--gold)] text-black font-semibold rounded-lg py-2.5 hover:bg-[var(--gold-light)] transition-colors"
+        className="flex-1 bg-[var(--gold)] text-white font-semibold rounded-lg py-2.5 hover:bg-[var(--gold-light)] transition-colors"
       >
         {added ? 'Added ✓' : '+ Add to Cart'}
       </button>
       <button
         onClick={handleBuyNow}
-        className="flex-1 border border-[var(--gold)] text-[var(--gold)] font-semibold rounded-lg py-2.5 hover:bg-[var(--gold)] hover:text-black transition-colors"
+        className="flex-1 border border-[var(--gold)] text-[var(--gold)] font-semibold rounded-lg py-2.5 hover:bg-[var(--gold)] hover:text-white transition-colors"
       >
         Buy Now
       </button>

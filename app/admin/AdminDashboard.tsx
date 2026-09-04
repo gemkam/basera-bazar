@@ -223,7 +223,7 @@ export default function AdminDashboard({ categories }: { categories: Category[] 
       headStyles: { fillColor: [30, 30, 30] },
     });
 
-    doc.save(`basera-bazaar-inventory-${new Date().toISOString().slice(0, 10)}.pdf`);
+    doc.save(`bazarify-inventory-${new Date().toISOString().slice(0, 10)}.pdf`);
   }
 
   const filtered = products.filter((p) =>

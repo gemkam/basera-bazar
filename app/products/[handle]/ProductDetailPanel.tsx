@@ -15,6 +15,7 @@ type ProductData = {
   compare_at_price: number | null;
   stock: number;
   images: string[];
+  image_position?: string | null;
 };
 
 export default function ProductDetailPanel({
@@ -31,10 +32,15 @@ export default function ProductDetailPanel({
   const [priceDraft, setPriceDraft] = useState('');
   const [descDraft, setDescDraft] = useState('');
   const [uploadingSlot, setUploadingSlot] = useState<number | null>(null);
+  const [showPositionPanel, setShowPositionPanel] = useState(false);
   const fileInputRefs = useRef<Record<number, HTMLInputElement | null>>({});
 
   const onSale = product.compare_at_price && product.compare_at_price > product.price;
   const outOfStock = product.stock <= 0;
+
+  const [posXStr, posYStr] = (product.image_position || '50% 50%').split(' ');
+  const posX = parseInt(posXStr) || 50;
+  const posY = parseInt(posYStr) || 50;
 
   async function saveField(fields: Record<string, unknown>) {
     await fetch(`/api/admin/products/${product.id}`, {
@@ -42,6 +48,14 @@ export default function ProductDetailPanel({
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(fields),
     });
+  }
+
+  async function savePosition(newX: number, newY: number) {
+    const clampedX = Math.min(100, Math.max(0, newX));
+    const clampedY = Math.min(100, Math.max(0, newY));
+    const value = `${clampedX}% ${clampedY}%`;
+    await saveField({ image_position: value });
+    setProduct((p) => ({ ...p, image_position: value }));
   }
 
   async function savePrice() {
@@ -91,25 +105,32 @@ export default function ProductDetailPanel({
   return (
     <div className="max-w-6xl mx-auto px-4 md:px-6 py-12 grid md:grid-cols-2 gap-10">
       <div className="space-y-3">
-        <div className="relative aspect-square bg-neutral-900 rounded-xl overflow-hidden">
+        <div className="relative aspect-square bg-neutral-50 rounded-xl overflow-hidden">
           {product.images?.[0] && (
             <Image
               src={product.images[0]}
               alt={product.title}
               fill
+              style={{ objectPosition: `${posX}% ${posY}%` }}
               className="object-cover"
               unoptimized
               priority
             />
           )}
           {editMode && (
-            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/50 flex items-center justify-center gap-2">
               <button
                 onClick={() => fileInputRefs.current[0]?.click()}
                 disabled={uploadingSlot === 0}
-                className="bg-[var(--gold)] text-black text-sm font-semibold px-4 py-2 rounded-lg hover:bg-[var(--gold-light)]"
+                className="bg-[var(--gold)] text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-[var(--gold-light)]"
               >
                 {uploadingSlot === 0 ? 'Uploading...' : '📷 Replace Main Image'}
+              </button>
+              <button
+                onClick={() => setShowPositionPanel((p) => !p)}
+                className="bg-neutral-900 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-neutral-800"
+              >
+                🎯 Position
               </button>
               <input
                 ref={(el) => { fileInputRefs.current[0] = el; }}
@@ -124,6 +145,25 @@ export default function ProductDetailPanel({
               />
             </div>
           )}
+          {editMode && showPositionPanel && (
+            <div className="absolute bottom-3 right-3 bg-black/80 rounded-xl p-2 grid grid-cols-3 gap-1 w-32">
+              <div />
+              <button onClick={() => savePosition(posX, posY - 5)} className="bg-white/10 hover:bg-white/20 text-white rounded py-1 text-sm">▲</button>
+              <div />
+              <button onClick={() => savePosition(posX - 5, posY)} className="bg-white/10 hover:bg-white/20 text-white rounded py-1 text-sm">◄</button>
+              <button
+                onClick={() => savePosition(50, 50)}
+                title="Reset to center"
+                className="bg-white/10 hover:bg-white/20 text-white rounded py-1 text-xs"
+              >
+                ⟲
+              </button>
+              <button onClick={() => savePosition(posX + 5, posY)} className="bg-white/10 hover:bg-white/20 text-white rounded py-1 text-sm">►</button>
+              <div />
+              <button onClick={() => savePosition(posX, posY + 5)} className="bg-white/10 hover:bg-white/20 text-white rounded py-1 text-sm">▼</button>
+              <div />
+            </div>
+          )}
         </div>
 
         {(product.images?.length > 1 || editMode) && (
@@ -131,14 +171,14 @@ export default function ProductDetailPanel({
             {product.images.slice(1, 5).map((img, i) => {
               const idx = i + 1;
               return (
-                <div key={idx} className="relative aspect-square bg-neutral-900 rounded-lg overflow-hidden">
+                <div key={idx} className="relative aspect-square bg-neutral-50 rounded-lg overflow-hidden">
                   <Image src={img} alt="" fill className="object-cover" unoptimized />
                   {editMode && (
                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                       <button
                         onClick={() => fileInputRefs.current[idx]?.click()}
                         disabled={uploadingSlot === idx}
-                        className="text-[10px] bg-[var(--gold)] text-black font-semibold px-1.5 py-1 rounded"
+                        className="text-[10px] bg-[var(--gold)] text-white font-semibold px-1.5 py-1 rounded"
                       >
                         {uploadingSlot === idx ? '...' : '📷'}
                       </button>
@@ -159,7 +199,7 @@ export default function ProductDetailPanel({
               );
             })}
             {editMode && (
-              <label className="relative aspect-square rounded-lg border border-dashed border-neutral-700 hover:border-[var(--gold)] flex items-center justify-center cursor-pointer text-neutral-500 text-xs">
+              <label className="relative aspect-square rounded-lg border border-dashed border-neutral-300 hover:border-[var(--gold)] flex items-center justify-center cursor-pointer text-neutral-500 text-xs">
                 {uploadingSlot === -1 ? '...' : '+ Add'}
                 <input
                   type="file"
@@ -215,11 +255,11 @@ export default function ProductDetailPanel({
 
         <div className="mb-6">
           {outOfStock ? (
-            <span className="inline-block px-3 py-1 rounded-full text-xs bg-red-950 text-red-400 border border-red-900">
+            <span className="inline-block px-3 py-1 rounded-full text-xs bg-red-50 text-red-700 border border-red-200">
               Out of Stock
             </span>
           ) : (
-            <span className="inline-block px-3 py-1 rounded-full text-xs bg-green-950 text-green-400 border border-green-900">
+            <span className="inline-block px-3 py-1 rounded-full text-xs bg-green-50 text-green-700 border border-green-200">
               In Stock ({product.stock} available)
             </span>
           )}
@@ -260,7 +300,7 @@ export default function ProductDetailPanel({
             />
             <button
               onClick={saveDescription}
-              className="bg-[var(--gold)] text-black text-sm font-semibold px-4 py-2 rounded-lg hover:bg-[var(--gold-light)]"
+              className="bg-[var(--gold)] text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-[var(--gold-light)]"
             >
               Save Description
             </button>
@@ -273,7 +313,7 @@ export default function ProductDetailPanel({
                 setEditingDesc(true);
               }
             }}
-            className={`prose prose-invert prose-sm max-w-none text-neutral-300 leading-relaxed whitespace-pre-line ${
+            className={`prose prose-sm max-w-none text-neutral-700 leading-relaxed whitespace-pre-line ${
               editMode ? 'cursor-pointer ring-1 ring-dashed ring-[var(--gold)]/50 hover:ring-[var(--gold)] rounded p-2' : ''
             }`}
           >
