@@ -7,7 +7,7 @@ export default function FloatingWhatsApp() {
 
   if (!loaded) return null;
 
-  const number = (settings.whatsapp_number || '923001234567').replace(/[^0-9]/g, '');
+  const number = (settings.whatsapp_number || '923094415485').replace(/[^0-9]/g, '');
   const message = encodeURIComponent("Hi! I'm interested in your products at BaZariFy.");
 
   return (
