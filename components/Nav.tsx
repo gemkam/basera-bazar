@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import CartIcon from './CartIcon';
 import EditableText from './EditableText';
+import SearchBar from './SearchBar';
+import LangToggleButton from './LangToggleButton';
 
 export const revalidate = 60;
 
@@ -9,6 +11,9 @@ async function getCategories() {
   const { data } = await supabase.from('categories').select('*').order('name');
   return data || [];
 }
+
+const pillLink =
+  'text-xs px-3 py-1.5 border border-neutral-700 rounded-full hover:border-[var(--gold)] hover:text-[var(--gold)] transition-colors';
 
 export default async function Nav() {
   const categories = await getCategories();
@@ -21,29 +26,34 @@ export default async function Nav() {
           fallback="Welcome to BaZariFy — Quality products, unbeatable prices"
         />
       </div>
-      <nav className="max-w-7xl mx-auto px-4 md:px-6 flex items-center justify-between h-16">
-        <Link href="/" className="text-xl md:text-2xl font-bold tracking-tight">
+      <nav className="max-w-7xl mx-auto px-4 md:px-6 flex items-center justify-between h-16 gap-3">
+        <Link href="/" className="text-xl md:text-2xl font-bold tracking-tight shrink-0">
           <span className="glass-logo">BaZariFy</span>
         </Link>
-        <div className="hidden md:flex items-center gap-6 text-sm text-neutral-300">
-          <Link href="/" className="hover:text-white transition-colors">Home</Link>
-          <Link href="/products" className="hover:text-white transition-colors">All Products</Link>
+
+        <SearchBar />
+
+        <div className="hidden lg:flex items-center gap-2 text-sm text-neutral-300 shrink-0">
+          <Link href="/" className={pillLink}>
+            Home
+          </Link>
+          <Link href="/products" className={pillLink}>
+            All Products
+          </Link>
           {categories.map((c) => (
-            <Link
-              key={c.id}
-              href={`/categories/${c.slug}`}
-              className="hover:text-white transition-colors"
-            >
+            <Link key={c.id} href={`/categories/${c.slug}`} className={pillLink}>
               {c.name}
             </Link>
           ))}
+          <Link href="/#contact" className={pillLink}>
+            Contact
+          </Link>
         </div>
-        <div className="flex items-center gap-4">
+
+        <div className="flex items-center gap-2 shrink-0">
+          <LangToggleButton />
           <CartIcon />
-          <Link
-            href="/admin"
-            className="text-xs px-3 py-1.5 border border-neutral-700 rounded-full hover:border-[var(--gold)] hover:text-[var(--gold)] transition-colors"
-          >
+          <Link href="/admin" className={pillLink}>
             Admin
           </Link>
         </div>

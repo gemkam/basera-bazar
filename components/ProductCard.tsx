@@ -6,6 +6,7 @@ import Image from 'next/image';
 import type { Product } from '@/lib/supabase';
 import { useCart } from '@/lib/cart-context';
 import { usePowerEditor } from '@/lib/power-editor-context';
+import { trackRecentlyViewed } from './RecentlyViewed';
 
 export default function ProductCard({ product: initialProduct }: { product: Product }) {
   const { addItem } = useCart();
@@ -74,7 +75,11 @@ export default function ProductCard({ product: initialProduct }: { product: Prod
     <Link
       href={`/products/${product.handle}`}
       onClick={(e) => {
-        if (editMode) e.preventDefault();
+        if (editMode) {
+          e.preventDefault();
+          return;
+        }
+        trackRecentlyViewed(product.id);
       }}
       className="card rounded-xl overflow-hidden group relative block transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-black/60"
     >

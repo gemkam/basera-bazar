@@ -1,0 +1,227 @@
+'use client';
+
+import { useState, useRef, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
+import type { Product } from '@/lib/supabase';
+import { useLanguage } from '@/lib/language-context';
+
+type SpeechRecognitionResultLike = { transcript: string };
+interface SpeechRecognitionLike extends EventTarget {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  maxAlternatives: number;
+  start: () => void;
+  stop: () => void;
+  onstart: (() => void) | null;
+  onend: (() => void) | null;
+  onerror: ((event: { error: string }) => void) | null;
+  onresult: ((event: { results: SpeechRecognitionResultLike[][] }) => void) | null;
+}
+
+type Message = { who: 'bot' | 'user'; text: string };
+
+export default function AIAssistant() {
+  const { language } = useLanguage();
+  const [open, setOpen] = useState(false);
+  const [opened, setOpened] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState('');
+  const [listening, setListening] = useState(false);
+  const [leadCaptured, setLeadCaptured] = useState(false);
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
+  const messagesRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const w = window as unknown as {
+      SpeechRecognition?: new () => SpeechRecognitionLike;
+      webkitSpeechRecognition?: new () => SpeechRecognitionLike;
+    };
+    const Ctor = w.SpeechRecognition || w.webkitSpeechRecognition;
+    if (!Ctor) return;
+    const recognition = new Ctor();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    recognition.onstart = () => setListening(true);
+    recognition.onend = () => setListening(false);
+    recognition.onerror = (event) => {
+      setListening(false);
+      if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+        alert('Microphone access was blocked. Please allow microphone permission for this site and try again.');
+      }
+    };
+    recognition.onresult = (event) => {
+      const transcript = event.results[0]?.[0]?.transcript;
+      if (transcript) {
+        setInput(transcript);
+        setTimeout(() => submitQuery(transcript), 100);
+      }
+    };
+    recognitionRef.current = recognition;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    messagesRef.current?.scrollTo({ top: messagesRef.current.scrollHeight, behavior: 'smooth' });
+  }, [messages]);
+
+  function handleMicClick() {
+    if (!recognitionRef.current) {
+      alert("Voice input isn't supported in this browser — try Chrome, Edge, or Safari.");
+      return;
+    }
+    if (!window.isSecureContext) {
+      alert('Voice input only works when this site is served over HTTPS.');
+      return;
+    }
+    if (listening) {
+      recognitionRef.current.stop();
+      return;
+    }
+    recognitionRef.current.lang = language === 'ur' ? 'ur-PK' : 'en-US';
+    try {
+      recognitionRef.current.start();
+    } catch {
+      /* already started */
+    }
+  }
+
+  function handleOpen() {
+    setOpen((o) => !o);
+    if (!opened) {
+      setOpened(true);
+      addMessage(
+        'bot',
+        language === 'ur'
+          ? 'السلام علیکم! میں بازاریفائی اسسٹنٹ ہوں۔ آپ کسی پروڈکٹ کی قیمت، دستیابی یا ڈیلیوری کے بارے میں پوچھ سکتے ہیں۔'
+          : "Hi! I'm the BaZariFy assistant. Ask me about product pricing, availability, or delivery — I can also connect you with our team."
+      );
+    }
+  }
+
+  function addMessage(who: 'bot' | 'user', text: string) {
+    setMessages((m) => [...m, { who, text }]);
+  }
+
+  async function submitQuery(text: string) {
+    const q = text.trim();
+    if (!q) return;
+    addMessage('user', q);
+    setInput('');
+    const answer = await answerQuery(q);
+    setTimeout(() => addMessage('bot', answer), 400);
+  }
+
+  async function answerQuery(q: string): Promise<string> {
+    const lower = q.toLowerCase();
+    const { data } = await supabase
+      .from('products')
+      .select('*')
+      .eq('is_active', true)
+      .ilike('title', `%${lower.split(' ')[0]}%`)
+      .limit(1);
+    const match: Product | undefined = data?.[0];
+    if (match) {
+      return language === 'ur'
+        ? `${match.title} کی قیمت Rs. ${match.price.toLocaleString()} ہے۔ کیا آپ اسے کارٹ میں شامل کرنا چاہیں گے؟`
+        : `${match.title} is Rs. ${match.price.toLocaleString()} and currently ${
+            match.stock > 0 ? 'in stock' : 'out of stock'
+          }. Want me to help you add it to your cart, or connect you with our team?`;
+    }
+    if (/deliver|shipping|ڈیلیوری/.test(lower)) {
+      return language === 'ur'
+        ? 'ہم پورے پاکستان میں کیش آن ڈیلیوری کرتے ہیں۔'
+        : 'We deliver nationwide with Cash on Delivery.';
+    }
+    if (!leadCaptured) {
+      setLeadCaptured(true);
+      return language === 'ur'
+        ? 'بہتر رہنمائی کے لیے، براہ کرم اپنا نام اور فون نمبر بتائیں تاکہ ہماری ٹیم رابطہ کر سکے۔'
+        : 'Good question — to help you better, could you share your name and phone number so our team can follow up?';
+    }
+    return language === 'ur' ? 'شکریہ! ہماری ٹیم جلد آپ سے رابطہ کرے گی۔' : 'Got it — thanks! Our team will reach out shortly.';
+  }
+
+  return (
+    <div className="fixed bottom-5 right-5 z-[60] flex flex-col items-end gap-2">
+      {open && (
+        <div className="bg-neutral-950 border border-neutral-800 rounded-2xl w-80 max-w-[85vw] h-96 flex flex-col overflow-hidden shadow-2xl">
+          <div className="bg-neutral-900 px-4 py-3 flex items-center justify-between border-b border-neutral-800">
+            <div>
+              <p className="text-sm font-semibold text-white">Your AI Assistant</p>
+              <p className="text-[10px] text-neutral-500">Usually replies in seconds</p>
+            </div>
+            <button onClick={() => setOpen(false)} className="text-neutral-400 hover:text-white text-xl">
+              ×
+            </button>
+          </div>
+          <div ref={messagesRef} className="flex-1 overflow-y-auto p-3 space-y-2 text-sm">
+            {messages.map((m, i) => (
+              <div
+                key={i}
+                className={
+                  m.who === 'bot'
+                    ? 'bg-neutral-900 text-neutral-200 rounded-xl rounded-bl-sm px-3 py-2 max-w-[85%]'
+                    : 'bg-[var(--gold)] text-black rounded-xl rounded-br-sm px-3 py-2 max-w-[85%] ml-auto'
+                }
+              >
+                {m.text}
+              </div>
+            ))}
+          </div>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              submitQuery(input);
+            }}
+            className="border-t border-neutral-800 p-2 flex gap-2 items-center"
+          >
+            <div className="relative flex-1">
+              <input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder={listening ? '🎙 Listening…' : 'Ask about a product…'}
+                className="w-full bg-neutral-900 border border-neutral-800 rounded-full pl-3 pr-9 py-1.5 text-sm focus:outline-none focus:border-[var(--gold)] text-white"
+              />
+              <button
+                type="button"
+                onClick={handleMicClick}
+                aria-label="Ask by voice"
+                className={`absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
+                  listening ? 'text-[var(--gold)] bg-white/10' : 'text-neutral-400 hover:text-[var(--gold)] hover:bg-white/5'
+                }`}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Z" stroke="currentColor" strokeWidth="1.8" />
+                  <path d="M19 11a7 7 0 0 1-14 0" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                  <path d="M12 18v3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+            <button className="bg-[var(--gold)] text-black text-xs font-semibold px-3 rounded-full shrink-0" style={{ height: 32 }}>
+              ➤
+            </button>
+          </form>
+        </div>
+      )}
+
+      <div className="flex items-center gap-3 ai-row">
+        <span className="ai-tooltip bg-neutral-950 border border-neutral-800 text-neutral-200 text-sm px-4 py-2 rounded-full shadow-md">
+          May I assist you?
+        </span>
+        <button
+          onClick={handleOpen}
+          className="relative bg-[var(--gold)] text-black w-14 h-14 rounded-full shadow-lg hover:bg-[var(--gold-light)] flex items-center justify-center shrink-0"
+        >
+          <span className="ai-toggle-ring" />
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2.5L13.85 9.15L20.5 11L13.85 12.85L12 19.5L10.15 12.85L3.5 11L10.15 9.15L12 2.5Z" fill="currentColor" />
+            <path d="M19 2.5L19.55 4.45L21.5 5L19.55 5.55L19 7.5L18.45 5.55L16.5 5L18.45 4.45L19 2.5Z" fill="currentColor" />
+            <path d="M5 15L5.55 16.95L7.5 17.5L5.55 18.05L5 20L4.45 18.05L2.5 17.5L4.45 16.95L5 15Z" fill="currentColor" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+}

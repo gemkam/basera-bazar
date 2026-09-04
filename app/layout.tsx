@@ -3,9 +3,11 @@ import "./globals.css";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { CartProvider } from "@/lib/cart-context";
+import { LanguageProvider } from "@/lib/language-context";
 import { PowerEditorProvider } from "@/lib/power-editor-context";
 import PowerEditorBanner from "@/components/PowerEditorBanner";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
+import AIAssistant from "@/components/AIAssistant";
 
 export const metadata: Metadata = {
   title: {
@@ -30,16 +32,27 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400..700&family=Cormorant+Garamond:ital,wght@1,500;1,600&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body className="bg-black text-white antialiased min-h-screen flex flex-col">
-        <PowerEditorProvider>
-          <CartProvider>
-            <PowerEditorBanner />
-            <Nav />
-            <main className="flex-1">{children}</main>
-            <Footer />
-            <FloatingWhatsApp />
-          </CartProvider>
-        </PowerEditorProvider>
+        <LanguageProvider>
+          <PowerEditorProvider>
+            <CartProvider>
+              <PowerEditorBanner />
+              <Nav />
+              <main className="flex-1">{children}</main>
+              <Footer />
+              <FloatingWhatsApp />
+              <AIAssistant />
+            </CartProvider>
+          </PowerEditorProvider>
+        </LanguageProvider>
       </body>
     </html>
   );
