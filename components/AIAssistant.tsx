@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import type { Product } from '@/lib/supabase';
 import { useLanguage } from '@/lib/language-context';
+import { extractKeywords } from '@/lib/search-keywords';
 
 type SpeechRecognitionResultLike = { transcript: string };
 interface SpeechRecognitionLike extends EventTarget {
@@ -115,13 +116,18 @@ export default function AIAssistant() {
 
   async function answerQuery(q: string): Promise<string> {
     const lower = q.toLowerCase();
-    const { data } = await supabase
-      .from('products')
-      .select('*')
-      .eq('is_active', true)
-      .ilike('title', `%${lower.split(' ')[0]}%`)
-      .limit(1);
-    const match: Product | undefined = data?.[0];
+    const keywords = extractKeywords(q);
+    let match: Product | undefined;
+    if (keywords.length) {
+      const orFilter = keywords.map((k) => `title.ilike.%${k}%`).join(',');
+      const { data } = await supabase
+        .from('products')
+        .select('*')
+        .eq('is_active', true)
+        .or(orFilter)
+        .limit(1);
+      match = data?.[0];
+    }
     if (match) {
       return language === 'ur'
         ? `${match.title} کی قیمت Rs. ${match.price.toLocaleString()} ہے۔ کیا آپ اسے کارٹ میں شامل کرنا چاہیں گے؟`
@@ -192,11 +198,20 @@ export default function AIAssistant() {
                   listening ? 'text-[var(--gold)] bg-black/5' : 'text-neutral-600 hover:text-[var(--gold)] hover:bg-white/5'
                 }`}
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Z" stroke="currentColor" strokeWidth="1.8" />
-                  <path d="M19 11a7 7 0 0 1-14 0" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-                  <path d="M12 18v3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-                </svg>
+                {listening ? (
+                  <span className="mic-waveform" aria-hidden="true">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </span>
+                ) : (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Z" stroke="currentColor" strokeWidth="1.8" />
+                    <path d="M19 11a7 7 0 0 1-14 0" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                    <path d="M12 18v3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                  </svg>
+                )}
               </button>
             </div>
             <button className="bg-[var(--gold)] text-white text-xs font-semibold px-3 rounded-full shrink-0" style={{ height: 32 }}>
