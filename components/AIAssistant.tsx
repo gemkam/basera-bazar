@@ -88,16 +88,20 @@ export default function AIAssistant() {
     }
   }
 
+  function greet() {
+    addMessage(
+      'bot',
+      language === 'ur'
+        ? 'السلام علیکم! میں بازاریفائی اسسٹنٹ ہوں۔ آپ کسی پروڈکٹ کی قیمت، دستیابی یا ڈیلیوری کے بارے میں پوچھ سکتے ہیں۔'
+        : "Hi! I'm the BaZariFy assistant. Ask me about product pricing, availability, or delivery — I can also connect you with our team."
+    );
+  }
+
   function handleOpen() {
     setOpen((o) => !o);
     if (!opened) {
       setOpened(true);
-      addMessage(
-        'bot',
-        language === 'ur'
-          ? 'السلام علیکم! میں بازاریفائی اسسٹنٹ ہوں۔ آپ کسی پروڈکٹ کی قیمت، دستیابی یا ڈیلیوری کے بارے میں پوچھ سکتے ہیں۔'
-          : "Hi! I'm the BaZariFy assistant. Ask me about product pricing, availability, or delivery — I can also connect you with our team."
-      );
+      greet();
     }
   }
 
@@ -158,6 +162,18 @@ export default function AIAssistant() {
               <p className="text-sm font-semibold text-neutral-900">Your AI Assistant</p>
               <p className="text-[10px] text-neutral-500">Usually replies in seconds</p>
             </div>
+            <button
+              onClick={() => {
+                setMessages([]);
+                setLeadCaptured(false);
+                greet();
+              }}
+              aria-label="Clear conversation"
+              title="Clear conversation"
+              className="text-neutral-500 hover:text-neutral-900 text-xs px-2 py-1 rounded-full hover:bg-black/5 transition-colors mr-1"
+            >
+              Clear
+            </button>
             <button onClick={() => setOpen(false)} className="text-neutral-600 hover:text-neutral-900 text-xl">
               ×
             </button>
@@ -188,8 +204,21 @@ export default function AIAssistant() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder={listening ? '🎙 Listening…' : 'Ask about a product…'}
-                className="w-full bg-neutral-50 border border-neutral-200 rounded-full pl-3 pr-9 py-1.5 text-sm focus:outline-none focus:border-[var(--gold)] text-neutral-900"
+                className="w-full bg-neutral-50 border border-neutral-200 rounded-full pl-3 pr-16 py-1.5 text-sm focus:outline-none focus:border-[var(--gold)] text-neutral-900"
               />
+              {input && (
+                <button
+                  type="button"
+                  onClick={() => setInput('')}
+                  aria-label="Clear"
+                  className="absolute right-8 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center text-neutral-400 hover:text-neutral-700"
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="9" fill="currentColor" opacity="0.12" />
+                    <path d="M9 9l6 6M15 9l-6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                  </svg>
+                </button>
+              )}
               <button
                 type="button"
                 onClick={handleMicClick}

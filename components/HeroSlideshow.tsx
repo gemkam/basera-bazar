@@ -142,14 +142,16 @@ export default function HeroSlideshow() {
           }}
         >
           {slide.type === 'video' ? (
-            <video
-              src={slide.src}
-              autoPlay
-              muted
-              loop
-              playsInline
-              className="w-full h-full object-cover"
-            />
+            <div className="w-full h-full bg-black flex items-center justify-center">
+              <video
+                src={slide.src}
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="w-full h-full object-contain"
+              />
+            </div>
           ) : (
             <Image
               src={slide.src}

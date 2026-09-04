@@ -143,14 +143,14 @@ export default function SearchBar() {
       <button
         type="button"
         onClick={openPanel}
-        aria-label="Search"
+        aria-label="AI Search"
         className="hidden sm:flex items-center gap-2 text-sm text-neutral-600 border border-neutral-300 rounded-full pl-3 pr-4 py-1.5 hover:border-[var(--gold)] hover:text-[var(--gold)] transition-colors"
       >
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
           <path d="M21 21l-4.3-4.3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
         </svg>
-        Search
+        AI Search
       </button>
 
       {panelOpen && (
@@ -169,6 +169,24 @@ export default function SearchBar() {
                 placeholder={listening ? 'Listening…' : 'Search products… / تلاش کریں'}
                 className="flex-1 text-lg outline-none text-neutral-900 placeholder-neutral-400 bg-transparent"
               />
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setQuery('');
+                    setResults([]);
+                    setSearched(false);
+                    inputRef.current?.focus();
+                  }}
+                  aria-label="Clear search"
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-neutral-400 hover:text-neutral-700 shrink-0"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="9" fill="currentColor" opacity="0.12" />
+                    <path d="M9 9l6 6M15 9l-6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                  </svg>
+                </button>
+              )}
               <button
                 type="button"
                 onClick={handleMicClick}
