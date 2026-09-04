@@ -248,3 +248,30 @@ html[dir="rtl"] .glass-logo {
     height: 14px;
   }
 }
+
+/* ---- AI Assistant icon: twinkling stars ---- */
+.twinkle-star {
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+.twinkle-2 {
+  animation: twinkle 1.8s ease-in-out infinite;
+  animation-delay: 0s;
+}
+.twinkle-3 {
+  animation: twinkle 1.8s ease-in-out infinite;
+  animation-delay: 0.9s;
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(0.8);
+  }
+}

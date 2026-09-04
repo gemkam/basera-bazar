@@ -260,9 +260,9 @@ export default function AIAssistant() {
         >
           <span className="ai-toggle-ring" />
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2.5L13.85 9.15L20.5 11L13.85 12.85L12 19.5L10.15 12.85L3.5 11L10.15 9.15L12 2.5Z" fill="currentColor" />
-            <path d="M19 2.5L19.55 4.45L21.5 5L19.55 5.55L19 7.5L18.45 5.55L16.5 5L18.45 4.45L19 2.5Z" fill="currentColor" />
-            <path d="M5 15L5.55 16.95L7.5 17.5L5.55 18.05L5 20L4.45 18.05L2.5 17.5L4.45 16.95L5 15Z" fill="currentColor" />
+            <path className="twinkle-star twinkle-1" d="M12 2.5L13.85 9.15L20.5 11L13.85 12.85L12 19.5L10.15 12.85L3.5 11L10.15 9.15L12 2.5Z" fill="currentColor" />
+            <path className="twinkle-star twinkle-2" d="M19 2.5L19.55 4.45L21.5 5L19.55 5.55L19 7.5L18.45 5.55L16.5 5L18.45 4.45L19 2.5Z" fill="currentColor" />
+            <path className="twinkle-star twinkle-3" d="M5 15L5.55 16.95L7.5 17.5L5.55 18.05L5 20L4.45 18.05L2.5 17.5L4.45 16.95L5 15Z" fill="currentColor" />
           </svg>
         </button>
       </div>
