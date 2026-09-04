@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import { usePowerEditor } from '@/lib/power-editor-context';
-import KineticText from './KineticText';
 import EditableText from './EditableText';
 
 export default function HeroSlideshow() {
@@ -13,10 +12,6 @@ export default function HeroSlideshow() {
   const [playing, setPlaying] = useState(true);
   const [uploadingSlot, setUploadingSlot] = useState<number | null>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [editingHeading, setEditingHeading] = useState(false);
-  const [editingSub, setEditingSub] = useState(false);
-  const [headingDraft, setHeadingDraft] = useState('');
-  const [subDraft, setSubDraft] = useState('');
   const sectionRef = useRef<HTMLElement>(null);
   const fileInputRefs = [
     useRef<HTMLInputElement>(null),
@@ -31,15 +26,24 @@ export default function HeroSlideshow() {
 
   type Slide = { type: 'image'; src: string; alt: string; key: string };
 
+  // Neutral gray placeholder — shown only until the real banner images are
+  // uploaded through the admin panel. Deliberately not the old promotional
+  // graphics, since those were explicitly retired.
+  const PLACEHOLDER =
+    'data:image/svg+xml;charset=utf-8,' +
+    encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="500"><rect width="100%" height="100%" fill="#e5e5e5"/></svg>'
+    );
+
   const slides: Slide[] = [
-    { type: 'image', src: settings.hero_image_1 || '/hero/hero1.webp', alt: 'Hero banner 1', key: 'hero_image_1' },
-    { type: 'image', src: settings.hero_image_2 || '/hero/hero2.webp', alt: 'Hero banner 2', key: 'hero_image_2' },
-    { type: 'image', src: settings.hero_image_3 || '/hero/hero1.webp', alt: 'Hero banner 3', key: 'hero_image_3' },
-    { type: 'image', src: settings.hero_image_4 || '/hero/hero2.webp', alt: 'Hero banner 4', key: 'hero_image_4' },
-    { type: 'image', src: settings.hero_image_5 || '/hero/hero1.webp', alt: 'Hero banner 5', key: 'hero_image_5' },
-    { type: 'image', src: settings.hero_image_6 || '/hero/hero2.webp', alt: 'Hero banner 6', key: 'hero_image_6' },
-    { type: 'image', src: settings.hero_image_7 || '/hero/hero1.webp', alt: 'Hero banner 7', key: 'hero_image_7' },
-    { type: 'image', src: settings.hero_image_8 || '/hero/hero2.webp', alt: 'Hero banner 8', key: 'hero_image_8' },
+    { type: 'image', src: settings.hero_image_1 || PLACEHOLDER, alt: 'Hero banner 1', key: 'hero_image_1' },
+    { type: 'image', src: settings.hero_image_2 || PLACEHOLDER, alt: 'Hero banner 2', key: 'hero_image_2' },
+    { type: 'image', src: settings.hero_image_3 || PLACEHOLDER, alt: 'Hero banner 3', key: 'hero_image_3' },
+    { type: 'image', src: settings.hero_image_4 || PLACEHOLDER, alt: 'Hero banner 4', key: 'hero_image_4' },
+    { type: 'image', src: settings.hero_image_5 || PLACEHOLDER, alt: 'Hero banner 5', key: 'hero_image_5' },
+    { type: 'image', src: settings.hero_image_6 || PLACEHOLDER, alt: 'Hero banner 6', key: 'hero_image_6' },
+    { type: 'image', src: settings.hero_image_7 || PLACEHOLDER, alt: 'Hero banner 7', key: 'hero_image_7' },
+    { type: 'image', src: settings.hero_image_8 || PLACEHOLDER, alt: 'Hero banner 8', key: 'hero_image_8' },
   ];
 
   const next = useCallback(() => {
@@ -166,80 +170,6 @@ export default function HeroSlideshow() {
       {/* Dim overlay for text readability */}
       <div className="absolute inset-0 hero-text-dim z-[5] pointer-events-none" />
 
-      {/* Kinetic headline overlay */}
-      <div className="absolute inset-0 z-[6] flex flex-col items-center justify-center text-center px-4">
-        {editMode && editingHeading ? (
-          <input
-            autoFocus
-            value={headingDraft}
-            onChange={(e) => setHeadingDraft(e.target.value)}
-            onKeyDown={async (e) => {
-              if (e.key === 'Enter') {
-                await updateSetting('hero_heading', headingDraft);
-                setEditingHeading(false);
-              }
-            }}
-            onBlur={async () => {
-              await updateSetting('hero_heading', headingDraft);
-              setEditingHeading(false);
-            }}
-            className="bg-black/80 border border-[var(--gold-light)] rounded-lg px-4 py-2 text-2xl md:text-5xl font-bold text-center text-white outline-none w-full max-w-2xl"
-          />
-        ) : (
-          <h1
-            key={`heading-${current}`}
-            onClick={() => {
-              if (editMode) {
-                setHeadingDraft(settings.hero_heading || 'Shop Smarter, Live Better');
-                setEditingHeading(true);
-              }
-            }}
-            className={`text-2xl md:text-5xl font-bold text-white drop-shadow-lg ${
-              editMode ? 'cursor-pointer ring-1 ring-dashed ring-[var(--gold)]/60 rounded px-2' : ''
-            }`}
-          >
-            <KineticText text={settings.hero_heading || 'Shop Smarter, Live Better'} />
-          </h1>
-        )}
-
-        {editMode && editingSub ? (
-          <input
-            autoFocus
-            value={subDraft}
-            onChange={(e) => setSubDraft(e.target.value)}
-            onKeyDown={async (e) => {
-              if (e.key === 'Enter') {
-                await updateSetting('hero_subheading', subDraft);
-                setEditingSub(false);
-              }
-            }}
-            onBlur={async () => {
-              await updateSetting('hero_subheading', subDraft);
-              setEditingSub(false);
-            }}
-            className="mt-4 bg-black/80 border border-[var(--gold)] rounded-lg px-4 py-2 text-sm md:text-lg text-center text-neutral-800 outline-none w-full max-w-xl"
-          />
-        ) : (
-          <p
-            key={`sub-${current}`}
-            onClick={() => {
-              if (editMode) {
-                setSubDraft(settings.hero_subheading || '');
-                setEditingSub(true);
-              }
-            }}
-            className={`mt-4 text-sm md:text-lg text-neutral-100 drop-shadow-md max-w-xl ${
-              editMode ? 'cursor-pointer ring-1 ring-dashed ring-[var(--gold)]/60 rounded px-2' : ''
-            }`}
-          >
-            <KineticText
-              text={settings.hero_subheading || 'Quality products at unbeatable prices'}
-              staggerMs={35}
-              baseDelay={250}
-            />
-          </p>
-        )}
-      </div>
 
       {slides.length > 1 && (
         <button
