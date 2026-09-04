@@ -91,7 +91,7 @@ export default function ProductDetailPanel({
   return (
     <div className="max-w-6xl mx-auto px-4 md:px-6 py-12 grid md:grid-cols-2 gap-10">
       <div className="space-y-3">
-        <div className="relative aspect-square bg-neutral-900 rounded-xl overflow-hidden">
+        <div className="relative aspect-square bg-neutral-50 rounded-xl overflow-hidden">
           {product.images?.[0] && (
             <Image
               src={product.images[0]}
@@ -107,7 +107,7 @@ export default function ProductDetailPanel({
               <button
                 onClick={() => fileInputRefs.current[0]?.click()}
                 disabled={uploadingSlot === 0}
-                className="bg-[var(--gold)] text-black text-sm font-semibold px-4 py-2 rounded-lg hover:bg-[var(--gold-light)]"
+                className="bg-[var(--gold)] text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-[var(--gold-light)]"
               >
                 {uploadingSlot === 0 ? 'Uploading...' : '📷 Replace Main Image'}
               </button>
@@ -131,14 +131,14 @@ export default function ProductDetailPanel({
             {product.images.slice(1, 5).map((img, i) => {
               const idx = i + 1;
               return (
-                <div key={idx} className="relative aspect-square bg-neutral-900 rounded-lg overflow-hidden">
+                <div key={idx} className="relative aspect-square bg-neutral-50 rounded-lg overflow-hidden">
                   <Image src={img} alt="" fill className="object-cover" unoptimized />
                   {editMode && (
                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                       <button
                         onClick={() => fileInputRefs.current[idx]?.click()}
                         disabled={uploadingSlot === idx}
-                        className="text-[10px] bg-[var(--gold)] text-black font-semibold px-1.5 py-1 rounded"
+                        className="text-[10px] bg-[var(--gold)] text-white font-semibold px-1.5 py-1 rounded"
                       >
                         {uploadingSlot === idx ? '...' : '📷'}
                       </button>
@@ -159,7 +159,7 @@ export default function ProductDetailPanel({
               );
             })}
             {editMode && (
-              <label className="relative aspect-square rounded-lg border border-dashed border-neutral-700 hover:border-[var(--gold)] flex items-center justify-center cursor-pointer text-neutral-500 text-xs">
+              <label className="relative aspect-square rounded-lg border border-dashed border-neutral-300 hover:border-[var(--gold)] flex items-center justify-center cursor-pointer text-neutral-500 text-xs">
                 {uploadingSlot === -1 ? '...' : '+ Add'}
                 <input
                   type="file"
@@ -215,11 +215,11 @@ export default function ProductDetailPanel({
 
         <div className="mb-6">
           {outOfStock ? (
-            <span className="inline-block px-3 py-1 rounded-full text-xs bg-red-950 text-red-400 border border-red-900">
+            <span className="inline-block px-3 py-1 rounded-full text-xs bg-red-50 text-red-700 border border-red-200">
               Out of Stock
             </span>
           ) : (
-            <span className="inline-block px-3 py-1 rounded-full text-xs bg-green-950 text-green-400 border border-green-900">
+            <span className="inline-block px-3 py-1 rounded-full text-xs bg-green-50 text-green-700 border border-green-200">
               In Stock ({product.stock} available)
             </span>
           )}
@@ -260,7 +260,7 @@ export default function ProductDetailPanel({
             />
             <button
               onClick={saveDescription}
-              className="bg-[var(--gold)] text-black text-sm font-semibold px-4 py-2 rounded-lg hover:bg-[var(--gold-light)]"
+              className="bg-[var(--gold)] text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-[var(--gold-light)]"
             >
               Save Description
             </button>
@@ -273,7 +273,7 @@ export default function ProductDetailPanel({
                 setEditingDesc(true);
               }
             }}
-            className={`prose prose-invert prose-sm max-w-none text-neutral-300 leading-relaxed whitespace-pre-line ${
+            className={`prose prose-sm max-w-none text-neutral-700 leading-relaxed whitespace-pre-line ${
               editMode ? 'cursor-pointer ring-1 ring-dashed ring-[var(--gold)]/50 hover:ring-[var(--gold)] rounded p-2' : ''
             }`}
           >

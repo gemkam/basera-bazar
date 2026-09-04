@@ -13,14 +13,14 @@ async function getCategories() {
 }
 
 const pillLink =
-  'text-xs px-3 py-1.5 border border-neutral-700 rounded-full hover:border-[var(--gold)] hover:text-[var(--gold)] transition-colors';
+  'text-xs px-3 py-1.5 border border-neutral-300 rounded-full hover:border-[var(--gold)] hover:text-[var(--gold)] transition-colors';
 
 export default async function Nav() {
   const categories = await getCategories();
 
   return (
-    <header className="sticky top-0 z-50 bg-black/95 backdrop-blur border-b border-neutral-800">
-      <div className="text-center text-xs py-1.5 bg-neutral-950 text-neutral-400 tracking-wide">
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-neutral-200">
+      <div className="text-center text-xs py-1.5 bg-white text-neutral-600 tracking-wide">
         <EditableText
           settingKey="announcement_text"
           fallback="Welcome to BaZariFy — Quality products, unbeatable prices"
@@ -33,7 +33,7 @@ export default async function Nav() {
 
         <SearchBar />
 
-        <div className="hidden lg:flex items-center gap-2 text-sm text-neutral-300 shrink-0">
+        <div className="hidden lg:flex items-center gap-2 text-sm text-neutral-700 shrink-0">
           <Link href="/" className={pillLink}>
             Home
           </Link>

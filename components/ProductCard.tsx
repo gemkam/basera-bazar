@@ -83,7 +83,7 @@ export default function ProductCard({ product: initialProduct }: { product: Prod
       }}
       className="card rounded-xl overflow-hidden group relative block transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-black/60"
     >
-      <div className="relative aspect-square bg-neutral-900 overflow-hidden">
+      <div className="relative aspect-square bg-neutral-50 overflow-hidden">
         {primaryImage && (
           <Image
             src={primaryImage}
@@ -108,7 +108,7 @@ export default function ProductCard({ product: initialProduct }: { product: Prod
         )}
 
         {onSale && (
-          <span className="absolute top-2 left-2 bg-[var(--gold)] text-black text-[10px] font-bold px-2 py-1 rounded-full z-10">
+          <span className="absolute top-2 left-2 bg-[var(--gold)] text-white text-[10px] font-bold px-2 py-1 rounded-full z-10">
             SALE
           </span>
         )}
@@ -127,7 +127,7 @@ export default function ProductCard({ product: initialProduct }: { product: Prod
                 fileInputRef.current?.click();
               }}
               disabled={uploading}
-              className="bg-[var(--gold)] text-black text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-[var(--gold-light)]"
+              className="bg-[var(--gold)] text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-[var(--gold-light)]"
             >
               {uploading ? 'Uploading...' : '📷 Replace'}
             </button>
@@ -150,7 +150,7 @@ export default function ProductCard({ product: initialProduct }: { product: Prod
       </div>
 
       <div className="p-3">
-        <h3 className="text-sm text-neutral-200 line-clamp-2 min-h-[2.5rem] transition-colors duration-300 group-hover:text-white">
+        <h3 className="text-sm text-neutral-800 line-clamp-2 min-h-[2.5rem] transition-colors duration-300 group-hover:text-neutral-900">
           {product.title}
         </h3>
         <div className="mt-2 flex items-center gap-2">
@@ -193,7 +193,7 @@ export default function ProductCard({ product: initialProduct }: { product: Prod
         {!outOfStock && !editMode && (
           <button
             onClick={handleAddToCart}
-            className="mt-2 w-full text-xs font-semibold bg-[var(--gold)] text-black rounded-lg py-1.5 transition-all duration-300 hover:bg-[var(--gold-light)] opacity-90 group-hover:opacity-100 translate-y-0.5 group-hover:translate-y-0 group-hover:shadow-md group-hover:shadow-[var(--gold)]/30"
+            className="mt-2 w-full text-xs font-semibold bg-[var(--gold)] text-white rounded-lg py-1.5 transition-all duration-300 hover:bg-[var(--gold-light)] opacity-90 group-hover:opacity-100 translate-y-0.5 group-hover:translate-y-0 group-hover:shadow-md group-hover:shadow-[var(--gold)]/30"
           >
             + Add to Cart
           </button>

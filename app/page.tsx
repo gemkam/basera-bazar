@@ -64,7 +64,7 @@ export default async function Home() {
           <h2 className="text-2xl font-bold">
             🔥 Best <span className="gold-gradient">Deals</span>
           </h2>
-          <Link href="/products" className="text-sm text-neutral-400 hover:text-white">
+          <Link href="/products" className="text-sm text-neutral-600 hover:text-neutral-900">
             View all →
           </Link>
         </div>

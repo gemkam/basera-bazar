@@ -14,18 +14,18 @@ function Confirmation() {
       <h1 className="text-2xl font-bold mb-3">
         Order <span className="gold-gradient">Confirmed!</span>
       </h1>
-      <p className="text-neutral-400 mb-2">
+      <p className="text-neutral-600 mb-2">
         Thank you for your order. We&apos;ll contact you shortly to confirm delivery.
       </p>
       {orderId && (
-        <p className="text-neutral-600 text-xs mb-6">Order ID: {orderId.slice(0, 8).toUpperCase()}</p>
+        <p className="text-neutral-500 text-xs mb-6">Order ID: {orderId.slice(0, 8).toUpperCase()}</p>
       )}
-      <p className="text-neutral-400 mb-8">
+      <p className="text-neutral-600 mb-8">
         Payment: <span className="text-[var(--gold)]">Cash on Delivery</span>
       </p>
       <Link
         href="/products"
-        className="inline-block bg-[var(--gold)] text-black font-semibold px-6 py-2.5 rounded-lg hover:bg-[var(--gold-light)] transition-colors"
+        className="inline-block bg-[var(--gold)] text-white font-semibold px-6 py-2.5 rounded-lg hover:bg-[var(--gold-light)] transition-colors"
       >
         Continue Shopping
       </Link>

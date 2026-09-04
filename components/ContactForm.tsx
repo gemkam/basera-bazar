@@ -18,7 +18,7 @@ export default function ContactForm() {
   return (
     <section id="contact" className="max-w-7xl mx-auto px-4 md:px-6 py-12">
       <div className="card rounded-2xl p-6 max-w-xl mx-auto">
-        <h3 className="text-lg font-semibold mb-1 text-white">Let&apos;s get your order sorted.</h3>
+        <h3 className="text-lg font-semibold mb-1 text-neutral-900">Let&apos;s get your order sorted.</h3>
         <p className="text-xs text-neutral-500 mb-4">Send an inquiry and we&apos;ll get back to you within a few hours.</p>
         {submitted ? (
           <p className="text-sm text-[var(--gold)]">Thanks — we usually reply within a few hours.</p>
@@ -30,7 +30,7 @@ export default function ContactForm() {
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               type="text"
               placeholder="Your name"
-              className="w-full bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[var(--gold)] text-white"
+              className="w-full bg-neutral-50 border border-neutral-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[var(--gold)] text-neutral-900"
             />
             <input
               required
@@ -38,7 +38,7 @@ export default function ContactForm() {
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
               type="tel"
               placeholder="Phone number"
-              className="w-full bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[var(--gold)] text-white"
+              className="w-full bg-neutral-50 border border-neutral-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[var(--gold)] text-neutral-900"
             />
             <textarea
               required
@@ -46,11 +46,11 @@ export default function ContactForm() {
               onChange={(e) => setForm({ ...form, message: e.target.value })}
               placeholder="What are you looking for?"
               rows={3}
-              className="w-full bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[var(--gold)] text-white"
+              className="w-full bg-neutral-50 border border-neutral-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[var(--gold)] text-neutral-900"
             />
             <button
               type="submit"
-              className="w-full bg-[var(--gold)] text-black text-sm font-semibold py-2.5 rounded-lg hover:bg-[var(--gold-light)]"
+              className="w-full bg-[var(--gold)] text-white text-sm font-semibold py-2.5 rounded-lg hover:bg-[var(--gold-light)]"
             >
               Send message
             </button>

@@ -89,7 +89,7 @@ export default function HeroSlideshow() {
     return (
       <section className="w-full grid grid-cols-2 md:grid-cols-3 gap-1 bg-black">
         {slides.map((slide, i) => (
-          <div key={slide.key} className="relative aspect-square bg-neutral-900">
+          <div key={slide.key} className="relative aspect-square bg-neutral-50">
             {slide.type === 'video' ? (
               <video src={slide.src} muted loop className="w-full h-full object-cover" />
             ) : (
@@ -99,7 +99,7 @@ export default function HeroSlideshow() {
               <button
                 onClick={() => fileInputRefs[i].current?.click()}
                 disabled={uploadingSlot === i}
-                className="bg-[var(--gold)] text-black text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-[var(--gold-light)] transition-colors"
+                className="bg-[var(--gold)] text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-[var(--gold-light)] transition-colors"
               >
                 {uploadingSlot === i ? 'Uploading...' : slide.type === 'video' ? '🎬 Replace' : '📷 Replace'}
               </button>
@@ -184,7 +184,7 @@ export default function HeroSlideshow() {
               await updateSetting('hero_heading', headingDraft);
               setEditingHeading(false);
             }}
-            className="bg-black/80 border border-[var(--gold)] rounded-lg px-4 py-2 text-2xl md:text-5xl font-bold text-center text-white outline-none w-full max-w-2xl"
+            className="bg-black/80 border border-[var(--gold-light)] rounded-lg px-4 py-2 text-2xl md:text-5xl font-bold text-center text-white outline-none w-full max-w-2xl"
           />
         ) : (
           <h1
@@ -218,7 +218,7 @@ export default function HeroSlideshow() {
               await updateSetting('hero_subheading', subDraft);
               setEditingSub(false);
             }}
-            className="mt-4 bg-black/80 border border-[var(--gold)] rounded-lg px-4 py-2 text-sm md:text-lg text-center text-neutral-200 outline-none w-full max-w-xl"
+            className="mt-4 bg-black/80 border border-[var(--gold)] rounded-lg px-4 py-2 text-sm md:text-lg text-center text-neutral-800 outline-none w-full max-w-xl"
           />
         ) : (
           <p
@@ -229,7 +229,7 @@ export default function HeroSlideshow() {
                 setEditingSub(true);
               }
             }}
-            className={`mt-4 text-sm md:text-lg text-neutral-200 drop-shadow-md max-w-xl ${
+            className={`mt-4 text-sm md:text-lg text-neutral-100 drop-shadow-md max-w-xl ${
               editMode ? 'cursor-pointer ring-1 ring-dashed ring-[var(--gold)]/60 rounded px-2' : ''
             }`}
           >

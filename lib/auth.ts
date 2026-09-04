@@ -1,6 +1,6 @@
 import { SignJWT, jwtVerify } from 'jose';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'basera-bazaar-admin-secret-2026-change-me';
+const JWT_SECRET = process.env.JWT_SECRET || 'bazarify-admin-secret-2026-change-me';
 const secretKey = new TextEncoder().encode(JWT_SECRET);
 
 export async function signAdminToken(email: string) {

@@ -146,13 +146,13 @@ export default function AIAssistant() {
   return (
     <div className="fixed bottom-5 right-5 z-[60] flex flex-col items-end gap-2">
       {open && (
-        <div className="bg-neutral-950 border border-neutral-800 rounded-2xl w-80 max-w-[85vw] h-96 flex flex-col overflow-hidden shadow-2xl">
-          <div className="bg-neutral-900 px-4 py-3 flex items-center justify-between border-b border-neutral-800">
+        <div className="bg-white border border-neutral-200 rounded-2xl w-80 max-w-[85vw] h-96 flex flex-col overflow-hidden shadow-2xl">
+          <div className="bg-neutral-50 px-4 py-3 flex items-center justify-between border-b border-neutral-200">
             <div>
-              <p className="text-sm font-semibold text-white">Your AI Assistant</p>
+              <p className="text-sm font-semibold text-neutral-900">Your AI Assistant</p>
               <p className="text-[10px] text-neutral-500">Usually replies in seconds</p>
             </div>
-            <button onClick={() => setOpen(false)} className="text-neutral-400 hover:text-white text-xl">
+            <button onClick={() => setOpen(false)} className="text-neutral-600 hover:text-neutral-900 text-xl">
               ×
             </button>
           </div>
@@ -162,8 +162,8 @@ export default function AIAssistant() {
                 key={i}
                 className={
                   m.who === 'bot'
-                    ? 'bg-neutral-900 text-neutral-200 rounded-xl rounded-bl-sm px-3 py-2 max-w-[85%]'
-                    : 'bg-[var(--gold)] text-black rounded-xl rounded-br-sm px-3 py-2 max-w-[85%] ml-auto'
+                    ? 'bg-neutral-50 text-neutral-800 rounded-xl rounded-bl-sm px-3 py-2 max-w-[85%]'
+                    : 'bg-[var(--gold)] text-white rounded-xl rounded-br-sm px-3 py-2 max-w-[85%] ml-auto'
                 }
               >
                 {m.text}
@@ -175,21 +175,21 @@ export default function AIAssistant() {
               e.preventDefault();
               submitQuery(input);
             }}
-            className="border-t border-neutral-800 p-2 flex gap-2 items-center"
+            className="border-t border-neutral-200 p-2 flex gap-2 items-center"
           >
             <div className="relative flex-1">
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder={listening ? '🎙 Listening…' : 'Ask about a product…'}
-                className="w-full bg-neutral-900 border border-neutral-800 rounded-full pl-3 pr-9 py-1.5 text-sm focus:outline-none focus:border-[var(--gold)] text-white"
+                className="w-full bg-neutral-50 border border-neutral-200 rounded-full pl-3 pr-9 py-1.5 text-sm focus:outline-none focus:border-[var(--gold)] text-neutral-900"
               />
               <button
                 type="button"
                 onClick={handleMicClick}
                 aria-label="Ask by voice"
                 className={`absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
-                  listening ? 'text-[var(--gold)] bg-white/10' : 'text-neutral-400 hover:text-[var(--gold)] hover:bg-white/5'
+                  listening ? 'text-[var(--gold)] bg-black/5' : 'text-neutral-600 hover:text-[var(--gold)] hover:bg-white/5'
                 }`}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -199,7 +199,7 @@ export default function AIAssistant() {
                 </svg>
               </button>
             </div>
-            <button className="bg-[var(--gold)] text-black text-xs font-semibold px-3 rounded-full shrink-0" style={{ height: 32 }}>
+            <button className="bg-[var(--gold)] text-white text-xs font-semibold px-3 rounded-full shrink-0" style={{ height: 32 }}>
               ➤
             </button>
           </form>
@@ -207,12 +207,12 @@ export default function AIAssistant() {
       )}
 
       <div className="flex items-center gap-3 ai-row">
-        <span className="ai-tooltip bg-neutral-950 border border-neutral-800 text-neutral-200 text-sm px-4 py-2 rounded-full shadow-md">
+        <span className="ai-tooltip bg-white border border-neutral-200 text-neutral-800 text-sm px-4 py-2 rounded-full shadow-md">
           May I assist you?
         </span>
         <button
           onClick={handleOpen}
-          className="relative bg-[var(--gold)] text-black w-14 h-14 rounded-full shadow-lg hover:bg-[var(--gold-light)] flex items-center justify-center shrink-0"
+          className="relative bg-[var(--gold)] text-white w-14 h-14 rounded-full shadow-lg hover:bg-[var(--gold-light)] flex items-center justify-center shrink-0"
         >
           <span className="ai-toggle-ring" />
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

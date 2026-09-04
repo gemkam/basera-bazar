@@ -40,7 +40,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="bg-black text-white antialiased min-h-screen flex flex-col">
+      <body className="bg-white text-neutral-900 antialiased min-h-screen flex flex-col">
         <LanguageProvider>
           <PowerEditorProvider>
             <CartProvider>

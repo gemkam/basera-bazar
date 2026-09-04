@@ -23,7 +23,7 @@ function Counter({ target, label }: { target: number; label: string }) {
   return (
     <div className="text-center">
       <div className="text-xl md:text-3xl font-bold gold-gradient">{value}</div>
-      <div className="text-[10px] md:text-xs text-neutral-400 uppercase tracking-wide">{label}</div>
+      <div className="text-[10px] md:text-xs text-neutral-600 uppercase tracking-wide">{label}</div>
     </div>
   );
 }
@@ -54,7 +54,7 @@ export default function HeroExtras() {
       <div className="flex flex-wrap justify-center gap-3">
         <Link
           href="/products"
-          className="bg-[var(--gold)] text-black text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[var(--gold-light)] transition-colors"
+          className="bg-[var(--gold)] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[var(--gold-light)] transition-colors"
         >
           Start Shopping
         </Link>

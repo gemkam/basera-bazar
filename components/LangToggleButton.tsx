@@ -7,7 +7,7 @@ export default function LangToggleButton() {
   return (
     <button
       onClick={toggleLanguage}
-      className="text-xs px-3 py-1.5 border border-neutral-700 rounded-full hover:border-[var(--gold)] hover:text-[var(--gold)] transition-colors"
+      className="text-xs px-3 py-1.5 border border-neutral-300 rounded-full hover:border-[var(--gold)] hover:text-[var(--gold)] transition-colors"
     >
       EN / اردو
     </button>

@@ -118,14 +118,14 @@ export default function SearchBar() {
         onChange={(e) => setQuery(e.target.value)}
         onFocus={() => query && setOpen(true)}
         placeholder={listening ? '🎙 Listening…' : 'Search products… / تلاش کریں'}
-        className="w-full bg-neutral-900 border border-neutral-700 rounded-full pl-4 pr-9 py-1.5 text-sm placeholder-neutral-500 focus:outline-none focus:border-[var(--gold)] text-white"
+        className="w-full bg-neutral-50 border border-neutral-300 rounded-full pl-4 pr-9 py-1.5 text-sm placeholder-neutral-400 focus:outline-none focus:border-[var(--gold)] text-neutral-900"
       />
       <button
         type="button"
         onClick={handleMicClick}
         aria-label="Search by voice"
         className={`absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
-          listening ? 'text-[var(--gold)] bg-white/10' : 'text-neutral-400 hover:text-[var(--gold)] hover:bg-white/5'
+          listening ? 'text-[var(--gold)] bg-black/5' : 'text-neutral-600 hover:text-[var(--gold)] hover:bg-white/5'
         }`}
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -135,16 +135,16 @@ export default function SearchBar() {
         </svg>
       </button>
       {open && (
-        <div className="absolute mt-2 w-full bg-neutral-950 border border-neutral-800 rounded-xl overflow-hidden z-50 max-h-80 overflow-y-auto shadow-2xl">
+        <div className="absolute mt-2 w-full bg-white border border-neutral-200 rounded-xl overflow-hidden z-50 max-h-80 overflow-y-auto shadow-2xl">
           {results.length ? (
             results.map((p) => (
               <Link
                 key={p.id}
                 href={`/products/${p.handle}`}
                 onClick={() => setOpen(false)}
-                className="px-3 py-2 hover:bg-neutral-900 text-sm flex justify-between items-center block transition-colors"
+                className="px-3 py-2 hover:bg-neutral-50 text-sm flex justify-between items-center block transition-colors"
               >
-                <span className="text-neutral-200 line-clamp-1">{p.title}</span>
+                <span className="text-neutral-800 line-clamp-1">{p.title}</span>
                 <span className="text-[var(--gold)] shrink-0 ml-2">Rs. {p.price.toLocaleString()}</span>
               </Link>
             ))

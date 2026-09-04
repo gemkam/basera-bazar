@@ -29,23 +29,23 @@ export default function DeliveryChecker() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="bg-white/10 border border-white/40 text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-white/20 transition-colors"
+        className="bg-black/5 border border-black/20 text-neutral-900 text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-black/10 transition-colors"
       >
         Check Delivery to Your Area
       </button>
 
       {open && (
         <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-[90] flex items-center justify-center p-4">
-          <div className="bg-neutral-950 border border-neutral-800 rounded-2xl w-full max-w-sm p-6">
+          <div className="bg-white border border-neutral-200 rounded-2xl w-full max-w-sm p-6">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold text-white">Check Delivery to Your Area</h3>
+              <h3 className="font-semibold text-neutral-900">Check Delivery to Your Area</h3>
               <button
                 onClick={() => {
                   setOpen(false);
                   setResult(null);
                   setCity('');
                 }}
-                className="text-neutral-400 hover:text-white text-xl"
+                className="text-neutral-600 hover:text-neutral-900 text-xl"
               >
                 ×
               </button>
@@ -56,11 +56,11 @@ export default function DeliveryChecker() {
               onKeyDown={(e) => e.key === 'Enter' && check()}
               type="text"
               placeholder="Enter your city"
-              className="w-full bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 text-sm mb-3 focus:outline-none focus:border-[var(--gold)] text-white"
+              className="w-full bg-neutral-50 border border-neutral-200 rounded-lg px-3 py-2 text-sm mb-3 focus:outline-none focus:border-[var(--gold)] text-neutral-900"
             />
             <button
               onClick={check}
-              className="w-full bg-[var(--gold)] text-black text-sm font-semibold py-2 rounded-lg hover:bg-[var(--gold-light)]"
+              className="w-full bg-[var(--gold)] text-white text-sm font-semibold py-2 rounded-lg hover:bg-[var(--gold-light)]"
             >
               Check
             </button>
@@ -68,7 +68,7 @@ export default function DeliveryChecker() {
               <p className="text-xs mt-3 text-[var(--gold)]">✓ Delivery available in your city</p>
             )}
             {result === 'no' && (
-              <p className="text-xs mt-3 text-neutral-400">
+              <p className="text-xs mt-3 text-neutral-600">
                 Not confirmed yet — contact us and we&apos;ll check for your area
               </p>
             )}
