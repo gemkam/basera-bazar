@@ -15,6 +15,7 @@ type ProductData = {
   compare_at_price: number | null;
   stock: number;
   images: string[];
+  image_position?: string | null;
 };
 
 export default function ProductDetailPanel({
@@ -31,10 +32,15 @@ export default function ProductDetailPanel({
   const [priceDraft, setPriceDraft] = useState('');
   const [descDraft, setDescDraft] = useState('');
   const [uploadingSlot, setUploadingSlot] = useState<number | null>(null);
+  const [showPositionPanel, setShowPositionPanel] = useState(false);
   const fileInputRefs = useRef<Record<number, HTMLInputElement | null>>({});
 
   const onSale = product.compare_at_price && product.compare_at_price > product.price;
   const outOfStock = product.stock <= 0;
+
+  const [posXStr, posYStr] = (product.image_position || '50% 50%').split(' ');
+  const posX = parseInt(posXStr) || 50;
+  const posY = parseInt(posYStr) || 50;
 
   async function saveField(fields: Record<string, unknown>) {
     await fetch(`/api/admin/products/${product.id}`, {
@@ -42,6 +48,14 @@ export default function ProductDetailPanel({
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(fields),
     });
+  }
+
+  async function savePosition(newX: number, newY: number) {
+    const clampedX = Math.min(100, Math.max(0, newX));
+    const clampedY = Math.min(100, Math.max(0, newY));
+    const value = `${clampedX}% ${clampedY}%`;
+    await saveField({ image_position: value });
+    setProduct((p) => ({ ...p, image_position: value }));
   }
 
   async function savePrice() {
@@ -97,19 +111,26 @@ export default function ProductDetailPanel({
               src={product.images[0]}
               alt={product.title}
               fill
+              style={{ objectPosition: `${posX}% ${posY}%` }}
               className="object-cover"
               unoptimized
               priority
             />
           )}
           {editMode && (
-            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/50 flex items-center justify-center gap-2">
               <button
                 onClick={() => fileInputRefs.current[0]?.click()}
                 disabled={uploadingSlot === 0}
                 className="bg-[var(--gold)] text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-[var(--gold-light)]"
               >
                 {uploadingSlot === 0 ? 'Uploading...' : '📷 Replace Main Image'}
+              </button>
+              <button
+                onClick={() => setShowPositionPanel((p) => !p)}
+                className="bg-neutral-900 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-neutral-800"
+              >
+                🎯 Position
               </button>
               <input
                 ref={(el) => { fileInputRefs.current[0] = el; }}
@@ -122,6 +143,25 @@ export default function ProductDetailPanel({
                   e.target.value = '';
                 }}
               />
+            </div>
+          )}
+          {editMode && showPositionPanel && (
+            <div className="absolute bottom-3 right-3 bg-black/80 rounded-xl p-2 grid grid-cols-3 gap-1 w-32">
+              <div />
+              <button onClick={() => savePosition(posX, posY - 5)} className="bg-white/10 hover:bg-white/20 text-white rounded py-1 text-sm">▲</button>
+              <div />
+              <button onClick={() => savePosition(posX - 5, posY)} className="bg-white/10 hover:bg-white/20 text-white rounded py-1 text-sm">◄</button>
+              <button
+                onClick={() => savePosition(50, 50)}
+                title="Reset to center"
+                className="bg-white/10 hover:bg-white/20 text-white rounded py-1 text-xs"
+              >
+                ⟲
+              </button>
+              <button onClick={() => savePosition(posX + 5, posY)} className="bg-white/10 hover:bg-white/20 text-white rounded py-1 text-sm">►</button>
+              <div />
+              <button onClick={() => savePosition(posX, posY + 5)} className="bg-white/10 hover:bg-white/20 text-white rounded py-1 text-sm">▼</button>
+              <div />
             </div>
           )}
         </div>
