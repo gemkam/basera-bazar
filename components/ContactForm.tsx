@@ -50,7 +50,7 @@ export default function ContactForm() {
             />
             <button
               type="submit"
-              className="w-full bg-[var(--gold)] text-white text-sm font-semibold py-2.5 rounded-lg hover:bg-[var(--gold-light)]"
+              className="btn-solid w-full bg-[var(--gold)] text-white text-sm font-semibold py-2.5 rounded-lg"
             >
               Send message
             </button>
