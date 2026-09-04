@@ -18,7 +18,7 @@ export default function Footer() {
           </p>
           <p className="text-neutral-500 text-xs mt-2">
             WhatsApp:{' '}
-            <EditableText settingKey="whatsapp_number" fallback="923001234567" />
+            <EditableText settingKey="whatsapp_number" fallback="923094415485" />
           </p>
         </div>
 
