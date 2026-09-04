@@ -6,18 +6,38 @@ import { usePowerEditor } from '@/lib/power-editor-context';
 import KineticText from './KineticText';
 import EditableText from './EditableText';
 
+// Tiny blurred placeholder shown while the hero video buffers, so visitors
+// see something other than a flash of solid black before it starts playing.
+const HERO_POSTER =
+  'data:image/jpeg;base64,/9j/4AAQSkZJRgABAgC2brfhAAD//gAQTGF2YzYwLjMxLjEwMgD/2wBDAAgKCgsKCw0NDQ0NDRAPEBAQEBAQEBAQEBASEhIVFRUSEhIQEBISFBQVFRcXFxUVFRUXFxkZGR4eHBwjIyQrKzP/xABtAAACAwEBAAAAAAAAAAAAAAAFBAYDAgABAQADAQEAAAAAAAAAAAAAAAAAAQQDAhAAAgICAAUFAQEBAQAAAAAAAQIAAwQRQSEFMRJhURUiE6GBI3ERAQEBAQEBAQAAAAAAAAAAAAABAhExA0H/wAARCAAuAFADASIAAhEAAxEA/9oADAMBAAIRAxEAPwAxblA2+ELUn8yvPvINZaDlA+skzZAVF/yT9vVnJxMFI1EcjIFU5bNVA+kAZGSGP2E3ianG6gPaNU5IeRs2V67QjRdUBqdORU5dQbW54cyocZFrm/6HRMrq5rzPAxBKznVDjPUzK2OtyHOrcz/5OptNbbMAI/GD9vIRnJwmPiV4R+q37HcfLA6mmvnPSzu+KMetzV4t7SlunK3GElcLOss0p1MdWS8aSfoC3T095cmAu97gu7MsVuMuTqLKByjjmiBwV8pl8JF7RY9R9P7KT1Atw/sZCJw0KiZ+PrMU+R0O0tTqO+ywDmf7nQly+fkOctNH2J3PTWQw5yqZnE91enRWTqbevaETSA67xkDYk2szqiavELtxGLERSzGsHDjJa9X2lb0giIIgabPaYSmz2kmNQmfygAE49p3Lsel0bnDprmBXGH//2Q==';
+
 export default function HeroSlideshow() {
   const { settings, editMode, updateSetting, loaded } = usePowerEditor();
   const [current, setCurrent] = useState(0);
   const [playing, setPlaying] = useState(true);
+  const [videoReady, setVideoReady] = useState(false);
   const [uploadingSlot, setUploadingSlot] = useState<number | null>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [editingHeading, setEditingHeading] = useState(false);
   const [editingSub, setEditingSub] = useState(false);
   const [headingDraft, setHeadingDraft] = useState('');
   const [subDraft, setSubDraft] = useState('');
+  const [showPositionPanel, setShowPositionPanel] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   const fileInputRefs = [useRef<HTMLInputElement>(null)];
+
+  // Video crop position, e.g. "50% 30%" — lets the video be nudged so
+  // content cropped off by object-cover (like a head near the top) can be
+  // brought back into frame without needing to re-edit the video file itself.
+  const [videoPos, videoPosY] = (settings.hero_video_position || '50% 50%').split(' ');
+  const posX = parseInt(videoPos) || 50;
+  const posY = parseInt(videoPosY) || 50;
+
+  async function nudgePosition(dx: number, dy: number) {
+    const newX = Math.min(100, Math.max(0, posX + dx));
+    const newY = Math.min(100, Math.max(0, posY + dy));
+    await updateSetting('hero_video_position', `${newX}% ${newY}%`);
+  }
 
   type Slide =
     | { type: 'image'; src: string; alt: string; key: string }
@@ -85,11 +105,18 @@ export default function HeroSlideshow() {
             }`}
           >
             {slide.type === 'video' ? (
-              <video src={slide.src} muted loop className="w-full h-full object-cover" />
+              <video
+                src={slide.src}
+                poster={HERO_POSTER}
+                muted
+                loop
+                className="w-full h-full object-cover"
+                style={{ objectPosition: `${posX}% ${posY}%` }}
+              />
             ) : (
               <Image src={slide.src} alt={slide.alt} fill className="object-cover" sizes="33vw" unoptimized={slide.src.startsWith('http')} />
             )}
-            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center gap-2">
               <button
                 onClick={() => fileInputRefs[i].current?.click()}
                 disabled={uploadingSlot === i}
@@ -97,6 +124,17 @@ export default function HeroSlideshow() {
               >
                 {uploadingSlot === i ? 'Uploading...' : slide.type === 'video' ? '🎬 Replace' : '📷 Replace'}
               </button>
+              {slide.type === 'video' && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowPositionPanel((p) => !p);
+                  }}
+                  className="bg-neutral-900 text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-neutral-800 transition-colors"
+                >
+                  🎯 Position
+                </button>
+              )}
               <input
                 ref={fileInputRefs[i]}
                 type="file"
@@ -109,6 +147,25 @@ export default function HeroSlideshow() {
                 }}
               />
             </div>
+            {slide.type === 'video' && showPositionPanel && (
+              <div className="absolute bottom-3 right-3 bg-black/80 rounded-xl p-2 grid grid-cols-3 gap-1 w-32">
+                <div />
+                <button onClick={() => nudgePosition(0, -5)} className="bg-white/10 hover:bg-white/20 text-white rounded py-1 text-sm">▲</button>
+                <div />
+                <button onClick={() => nudgePosition(-5, 0)} className="bg-white/10 hover:bg-white/20 text-white rounded py-1 text-sm">◄</button>
+                <button
+                  onClick={() => updateSetting('hero_video_position', '50% 50%')}
+                  title="Reset to center"
+                  className="bg-white/10 hover:bg-white/20 text-white rounded py-1 text-xs"
+                >
+                  ⟲
+                </button>
+                <button onClick={() => nudgePosition(5, 0)} className="bg-white/10 hover:bg-white/20 text-white rounded py-1 text-sm">►</button>
+                <div />
+                <button onClick={() => nudgePosition(0, 5)} className="bg-white/10 hover:bg-white/20 text-white rounded py-1 text-sm">▼</button>
+                <div />
+              </div>
+            )}
           </div>
         ))}
       </section>
@@ -138,11 +195,14 @@ export default function HeroSlideshow() {
           {slide.type === 'video' ? (
             <video
               src={slide.src}
+              poster={HERO_POSTER}
+              onLoadedData={() => setVideoReady(true)}
               autoPlay
               muted
               loop
               playsInline
               className="w-full h-full object-cover"
+              style={{ objectPosition: `${posX}% ${posY}%` }}
             />
           ) : (
             <Image
@@ -162,7 +222,10 @@ export default function HeroSlideshow() {
       <div className="absolute inset-0 hero-text-dim z-[5] pointer-events-none" />
 
       {/* Kinetic headline overlay */}
-      <div className="absolute inset-0 z-[6] flex flex-col items-center justify-center text-center px-4">
+      <div
+        className="absolute inset-0 z-[6] flex flex-col items-center justify-center text-center px-4 transition-opacity duration-500"
+        style={{ opacity: slides[current]?.type === 'video' && !videoReady ? 0 : 1 }}
+      >
         {editMode && editingHeading ? (
           <input
             autoFocus
