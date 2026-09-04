@@ -9,7 +9,7 @@ import { usePowerEditor } from '@/lib/power-editor-context';
 import { trackRecentlyViewed } from './RecentlyViewed';
 
 export default function ProductCard({ product: initialProduct }: { product: Product }) {
-  const { addItem } = useCart();
+  const { addItem, updateQuantity, items } = useCart();
   const { editMode } = usePowerEditor();
   const [product, setProduct] = useState(initialProduct);
   const [editingPrice, setEditingPrice] = useState(false);
@@ -22,6 +22,7 @@ export default function ProductCard({ product: initialProduct }: { product: Prod
   const outOfStock = product.stock <= 0;
   const primaryImage = product.images?.[0];
   const hoverImage = product.images?.[1] || primaryImage;
+  const cartQty = items.find((i) => i.productId === product.id)?.quantity || 0;
 
   const [posXStr, posYStr] = (product.image_position || '50% 50%').split(' ');
   const posX = parseInt(posXStr) || 50;
@@ -243,12 +244,46 @@ export default function ProductCard({ product: initialProduct }: { product: Prod
           )}
         </div>
         {!outOfStock && !editMode && (
-          <button
-            onClick={handleAddToCart}
-            className="mt-2 w-full text-xs font-semibold bg-[var(--gold)] text-white rounded-lg py-1.5 transition-all duration-300 hover:bg-[var(--gold-light)] opacity-90 group-hover:opacity-100 translate-y-0.5 group-hover:translate-y-0 group-hover:shadow-md group-hover:shadow-[var(--gold)]/30"
-          >
-            + Add to Cart
-          </button>
+          cartQty > 0 ? (
+            <div
+              className="mt-2 w-full flex items-center justify-between bg-[var(--gold)] rounded-lg py-1.5 px-1"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+            >
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  updateQuantity(product.id, cartQty - 1);
+                }}
+                aria-label="Decrease quantity"
+                className="w-7 h-7 flex items-center justify-center text-white text-lg font-semibold hover:bg-black/10 rounded-md transition-colors"
+              >
+                −
+              </button>
+              <span className="text-white text-sm font-semibold min-w-[2ch] text-center">{cartQty}</span>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  updateQuantity(product.id, cartQty + 1);
+                }}
+                aria-label="Increase quantity"
+                className="w-7 h-7 flex items-center justify-center text-white text-lg font-semibold hover:bg-black/10 rounded-md transition-colors"
+              >
+                +
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={handleAddToCart}
+              className="mt-2 w-full text-xs font-semibold bg-[var(--gold)] text-white rounded-lg py-1.5 transition-all duration-300 hover:bg-[var(--gold-light)] opacity-90 group-hover:opacity-100 translate-y-0.5 group-hover:translate-y-0 group-hover:shadow-md group-hover:shadow-[var(--gold)]/30"
+            >
+              + Add to Cart
+            </button>
+          )
         )}
       </div>
     </Link>
