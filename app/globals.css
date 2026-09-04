@@ -211,6 +211,20 @@ html[dir="rtl"] .glass-logo {
   transform: translateX(0);
 }
 
+/* ---- Hero slideshow: Ken Burns slow zoom on the active slide ---- */
+.ken-burns {
+  animation: ken-burns-zoom 7s ease-out forwards;
+}
+
+@keyframes ken-burns-zoom {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.08);
+  }
+}
+
 /* ---- Mic listening indicator: waveform bars ---- */
 .mic-waveform {
   display: inline-flex;
