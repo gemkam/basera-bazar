@@ -144,7 +144,7 @@ export default function SearchBar() {
         type="button"
         onClick={openPanel}
         aria-label="AI Search"
-        className="hidden sm:flex items-center gap-2 text-sm text-neutral-600 border border-neutral-300 rounded-full pl-3 pr-4 py-1.5 hover:border-[var(--gold)] hover:text-[var(--gold)] transition-colors"
+        className="btn-pill hidden sm:flex items-center gap-2 text-sm text-neutral-600 border border-neutral-300 rounded-full pl-3 pr-4 py-1.5"
       >
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />

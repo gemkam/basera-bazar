@@ -60,7 +60,7 @@ export default function DeliveryChecker() {
             />
             <button
               onClick={check}
-              className="w-full bg-[var(--gold)] text-white text-sm font-semibold py-2 rounded-lg hover:bg-[var(--gold-light)]"
+              className="btn-solid w-full bg-[var(--gold)] text-white text-sm font-semibold py-2 rounded-lg"
             >
               Check
             </button>

@@ -102,7 +102,7 @@ export default function HeroSlideshow() {
               <button
                 onClick={() => fileInputRefs[i].current?.click()}
                 disabled={uploadingSlot === i}
-                className="bg-[var(--gold)] text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-[var(--gold-light)] transition-colors"
+                className="btn-solid bg-[var(--gold)] text-white text-xs font-semibold px-3 py-1.5 rounded-lg"
               >
                 {uploadingSlot === i ? 'Uploading...' : '📷 Replace'}
               </button>

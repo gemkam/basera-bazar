@@ -54,7 +54,7 @@ export default function HeroExtras() {
       <div className="flex flex-wrap justify-center gap-3">
         <Link
           href="/products"
-          className="bg-[var(--gold)] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[var(--gold-light)] transition-colors"
+          className="btn-solid bg-[var(--gold)] text-white text-sm font-semibold px-5 py-2.5 rounded-full"
         >
           Start Shopping
         </Link>

@@ -13,7 +13,7 @@ async function getCategories() {
 }
 
 const pillLink =
-  'text-xs px-3 py-1.5 border border-neutral-300 rounded-full hover:border-[var(--gold)] hover:text-[var(--gold)] transition-colors';
+  'btn-pill text-xs px-3 py-1.5 border border-neutral-300 rounded-full';
 
 export default async function Nav() {
   const categories = await getCategories();
