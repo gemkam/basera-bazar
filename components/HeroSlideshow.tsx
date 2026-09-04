@@ -76,9 +76,14 @@ export default function HeroSlideshow() {
   // Edit mode: show all slides as a grid, each replaceable
   if (editMode) {
     return (
-      <section className="w-full grid grid-cols-2 md:grid-cols-3 gap-1 bg-black">
+      <section className={`w-full bg-black ${slides.length === 1 ? '' : 'grid grid-cols-2 md:grid-cols-3 gap-1'}`}>
         {slides.map((slide, i) => (
-          <div key={slide.key} className="relative aspect-square bg-neutral-50">
+          <div
+            key={slide.key}
+            className={`relative bg-neutral-50 ${
+              slides.length === 1 ? 'w-full aspect-[16/9] md:aspect-[21/8]' : 'aspect-square'
+            }`}
+          >
             {slide.type === 'video' ? (
               <video src={slide.src} muted loop className="w-full h-full object-cover" />
             ) : (
@@ -131,16 +136,14 @@ export default function HeroSlideshow() {
           }}
         >
           {slide.type === 'video' ? (
-            <div className="w-full h-full bg-black flex items-center justify-center">
-              <video
-                src={slide.src}
-                autoPlay
-                muted
-                loop
-                playsInline
-                className="w-full h-full object-contain"
-              />
-            </div>
+            <video
+              src={slide.src}
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="w-full h-full object-cover"
+            />
           ) : (
             <Image
               src={slide.src}
