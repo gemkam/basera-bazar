@@ -17,24 +17,13 @@ export default function HeroSlideshow() {
   const [headingDraft, setHeadingDraft] = useState('');
   const [subDraft, setSubDraft] = useState('');
   const sectionRef = useRef<HTMLElement>(null);
-  const fileInputRefs = [
-    useRef<HTMLInputElement>(null),
-    useRef<HTMLInputElement>(null),
-    useRef<HTMLInputElement>(null),
-    useRef<HTMLInputElement>(null),
-    useRef<HTMLInputElement>(null),
-  ];
+  const fileInputRefs = [useRef<HTMLInputElement>(null)];
 
   type Slide =
     | { type: 'image'; src: string; alt: string; key: string }
     | { type: 'video'; src: string; key: string };
 
   const slides: Slide[] = [
-    { type: 'image', src: settings.hero_image_1 || '/hero/hero1.webp', alt: 'Hero banner 1', key: 'hero_image_1' },
-    { type: 'image', src: settings.hero_image_2 || '/hero/hero2.webp', alt: 'Hero banner 2', key: 'hero_image_2' },
-    { type: 'image', src: settings.hero_image_3 || '/promo/new-arrivals.webp', alt: 'New Arrivals', key: 'hero_image_3' },
-    { type: 'image', src: settings.hero_image_4 || '/promo/cod-nationwide.webp', alt: 'Cash on Delivery', key: 'hero_image_4' },
-    { type: 'image', src: settings.hero_image_5 || '/promo/quality-guarantee.webp', alt: 'Quality Guaranteed', key: 'hero_image_5' },
     {
       type: 'video',
       src: settings.hero_video_url || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
@@ -47,10 +36,10 @@ export default function HeroSlideshow() {
   }, [slides.length]);
 
   useEffect(() => {
-    if (!playing || editMode) return;
+    if (!playing || editMode || slides.length <= 1) return;
     const timer = setInterval(next, 4500);
     return () => clearInterval(timer);
-  }, [playing, next, editMode]);
+  }, [playing, next, editMode, slides.length]);
 
   // Scroll-driven parallax + zoom
   useEffect(() => {
@@ -244,26 +233,30 @@ export default function HeroSlideshow() {
         )}
       </div>
 
-      <button
-        onClick={() => setPlaying((p) => !p)}
-        className="absolute bottom-4 right-4 z-20 bg-black/60 hover:bg-black/80 text-white text-xs px-3 py-1.5 rounded-full border border-white/20 transition-colors"
-        aria-label={playing ? 'Pause slideshow' : 'Play slideshow'}
-      >
-        {playing ? '❚❚ Pause' : '▶ Play'}
-      </button>
+      {slides.length > 1 && (
+        <button
+          onClick={() => setPlaying((p) => !p)}
+          className="absolute bottom-4 right-4 z-20 bg-black/60 hover:bg-black/80 text-white text-xs px-3 py-1.5 rounded-full border border-white/20 transition-colors"
+          aria-label={playing ? 'Pause slideshow' : 'Play slideshow'}
+        >
+          {playing ? '❚❚ Pause' : '▶ Play'}
+        </button>
+      )}
 
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex gap-2">
-        {slides.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setCurrent(i)}
-            className={`h-1.5 rounded-full transition-all ${
-              i === current ? 'w-6 bg-white' : 'w-1.5 bg-white/40'
-            }`}
-            aria-label={`Go to slide ${i + 1}`}
-          />
-        ))}
-      </div>
+      {slides.length > 1 && (
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+          {slides.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrent(i)}
+              className={`h-1.5 rounded-full transition-all ${
+                i === current ? 'w-6 bg-white' : 'w-1.5 bg-white/40'
+              }`}
+              aria-label={`Go to slide ${i + 1}`}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
