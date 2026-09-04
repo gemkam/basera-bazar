@@ -6,58 +6,52 @@ import { usePowerEditor } from '@/lib/power-editor-context';
 import KineticText from './KineticText';
 import EditableText from './EditableText';
 
-// Tiny blurred placeholder shown while the hero video buffers, so visitors
-// see something other than a flash of solid black before it starts playing.
-const HERO_POSTER =
-  'data:image/jpeg;base64,/9j/4AAQSkZJRgABAgC2brfhAAD//gAQTGF2YzYwLjMxLjEwMgD/2wBDAAgKCgsKCw0NDQ0NDRAPEBAQEBAQEBAQEBASEhIVFRUSEhIQEBISFBQVFRcXFxUVFRUXFxkZGR4eHBwjIyQrKzP/xABtAAACAwEBAAAAAAAAAAAAAAAFBAYDAgABAQADAQEAAAAAAAAAAAAAAAAAAQQDAhAAAgICAAUFAQEBAQAAAAAAAQIAAwQRQSEFMRJhURUiE6GBI3ERAQEBAQEBAQAAAAAAAAAAAAABAhExA0H/wAARCAAuAFADASIAAhEAAxEA/9oADAMBAAIRAxEAPwAxblA2+ELUn8yvPvINZaDlA+skzZAVF/yT9vVnJxMFI1EcjIFU5bNVA+kAZGSGP2E3ianG6gPaNU5IeRs2V67QjRdUBqdORU5dQbW54cyocZFrm/6HRMrq5rzPAxBKznVDjPUzK2OtyHOrcz/5OptNbbMAI/GD9vIRnJwmPiV4R+q37HcfLA6mmvnPSzu+KMetzV4t7SlunK3GElcLOss0p1MdWS8aSfoC3T095cmAu97gu7MsVuMuTqLKByjjmiBwV8pl8JF7RY9R9P7KT1Atw/sZCJw0KiZ+PrMU+R0O0tTqO+ywDmf7nQly+fkOctNH2J3PTWQw5yqZnE91enRWTqbevaETSA67xkDYk2szqiavELtxGLERSzGsHDjJa9X2lb0giIIgabPaYSmz2kmNQmfygAE49p3Lsel0bnDprmBXGH//2Q==';
-
 export default function HeroSlideshow() {
   const { settings, editMode, updateSetting, loaded } = usePowerEditor();
   const [current, setCurrent] = useState(0);
+  const [cycleCount, setCycleCount] = useState(0);
   const [playing, setPlaying] = useState(true);
-  const [videoReady, setVideoReady] = useState(false);
   const [uploadingSlot, setUploadingSlot] = useState<number | null>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [editingHeading, setEditingHeading] = useState(false);
   const [editingSub, setEditingSub] = useState(false);
   const [headingDraft, setHeadingDraft] = useState('');
   const [subDraft, setSubDraft] = useState('');
-  const [showPositionPanel, setShowPositionPanel] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
-  const fileInputRefs = [useRef<HTMLInputElement>(null)];
+  const fileInputRefs = [
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+  ];
 
-  // Video crop position, e.g. "50% 30%" — lets the video be nudged so
-  // content cropped off by object-cover (like a head near the top) can be
-  // brought back into frame without needing to re-edit the video file itself.
-  const [videoPos, videoPosY] = (settings.hero_video_position || '50% 50%').split(' ');
-  const posX = parseInt(videoPos) || 50;
-  const posY = parseInt(videoPosY) || 50;
-
-  async function nudgePosition(dx: number, dy: number) {
-    const newX = Math.min(100, Math.max(0, posX + dx));
-    const newY = Math.min(100, Math.max(0, posY + dy));
-    await updateSetting('hero_video_position', `${newX}% ${newY}%`);
-  }
-
-  type Slide =
-    | { type: 'image'; src: string; alt: string; key: string }
-    | { type: 'video'; src: string; key: string };
+  type Slide = { type: 'image'; src: string; alt: string; key: string };
 
   const slides: Slide[] = [
-    {
-      type: 'video',
-      src: settings.hero_video_url || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-      key: 'hero_video_url',
-    },
+    { type: 'image', src: settings.hero_image_1 || '/hero/hero1.webp', alt: 'Hero banner 1', key: 'hero_image_1' },
+    { type: 'image', src: settings.hero_image_2 || '/hero/hero2.webp', alt: 'Hero banner 2', key: 'hero_image_2' },
+    { type: 'image', src: settings.hero_image_3 || '/hero/hero1.webp', alt: 'Hero banner 3', key: 'hero_image_3' },
+    { type: 'image', src: settings.hero_image_4 || '/hero/hero2.webp', alt: 'Hero banner 4', key: 'hero_image_4' },
+    { type: 'image', src: settings.hero_image_5 || '/hero/hero1.webp', alt: 'Hero banner 5', key: 'hero_image_5' },
+    { type: 'image', src: settings.hero_image_6 || '/hero/hero2.webp', alt: 'Hero banner 6', key: 'hero_image_6' },
+    { type: 'image', src: settings.hero_image_7 || '/hero/hero1.webp', alt: 'Hero banner 7', key: 'hero_image_7' },
+    { type: 'image', src: settings.hero_image_8 || '/hero/hero2.webp', alt: 'Hero banner 8', key: 'hero_image_8' },
   ];
 
   const next = useCallback(() => {
     setCurrent((c) => (c + 1) % slides.length);
+    setCycleCount((n) => n + 1);
   }, [slides.length]);
 
   useEffect(() => {
     if (!playing || editMode || slides.length <= 1) return;
-    const timer = setInterval(next, 4500);
+    // Slow, cinematic pacing — long enough for the Ken Burns pan/zoom on each
+    // slide to actually be visible before it cross-fades to the next one.
+    const timer = setInterval(next, 7000);
     return () => clearInterval(timer);
   }, [playing, next, editMode, slides.length]);
 
@@ -96,49 +90,22 @@ export default function HeroSlideshow() {
   // Edit mode: show all slides as a grid, each replaceable
   if (editMode) {
     return (
-      <section className={`w-full bg-black ${slides.length === 1 ? '' : 'grid grid-cols-2 md:grid-cols-3 gap-1'}`}>
+      <section className="w-full bg-black grid grid-cols-2 md:grid-cols-4 gap-1">
         {slides.map((slide, i) => (
-          <div
-            key={slide.key}
-            className={`relative bg-neutral-50 ${
-              slides.length === 1 ? 'w-full aspect-[16/9] md:aspect-[21/8]' : 'aspect-square'
-            }`}
-          >
-            {slide.type === 'video' ? (
-              <video
-                src={slide.src}
-                poster={HERO_POSTER}
-                muted
-                loop
-                className="w-full h-full object-cover"
-                style={{ objectPosition: `${posX}% ${posY}%` }}
-              />
-            ) : (
-              <Image src={slide.src} alt={slide.alt} fill className="object-cover" sizes="33vw" unoptimized={slide.src.startsWith('http')} />
-            )}
-            <div className="absolute inset-0 bg-black/40 flex items-center justify-center gap-2">
+          <div key={slide.key} className="relative aspect-square bg-neutral-50">
+            <Image src={slide.src} alt={slide.alt} fill className="object-cover" sizes="25vw" unoptimized={slide.src.startsWith('http')} />
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
               <button
                 onClick={() => fileInputRefs[i].current?.click()}
                 disabled={uploadingSlot === i}
                 className="bg-[var(--gold)] text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-[var(--gold-light)] transition-colors"
               >
-                {uploadingSlot === i ? 'Uploading...' : slide.type === 'video' ? '🎬 Replace' : '📷 Replace'}
+                {uploadingSlot === i ? 'Uploading...' : '📷 Replace'}
               </button>
-              {slide.type === 'video' && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowPositionPanel((p) => !p);
-                  }}
-                  className="bg-neutral-900 text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-neutral-800 transition-colors"
-                >
-                  🎯 Position
-                </button>
-              )}
               <input
                 ref={fileInputRefs[i]}
                 type="file"
-                accept={slide.type === 'video' ? 'video/*' : 'image/*'}
+                accept="image/*"
                 className="hidden"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
@@ -147,25 +114,6 @@ export default function HeroSlideshow() {
                 }}
               />
             </div>
-            {slide.type === 'video' && showPositionPanel && (
-              <div className="absolute bottom-3 right-3 bg-black/80 rounded-xl p-2 grid grid-cols-3 gap-1 w-32">
-                <div />
-                <button onClick={() => nudgePosition(0, -5)} className="bg-white/10 hover:bg-white/20 text-white rounded py-1 text-sm">▲</button>
-                <div />
-                <button onClick={() => nudgePosition(-5, 0)} className="bg-white/10 hover:bg-white/20 text-white rounded py-1 text-sm">◄</button>
-                <button
-                  onClick={() => updateSetting('hero_video_position', '50% 50%')}
-                  title="Reset to center"
-                  className="bg-white/10 hover:bg-white/20 text-white rounded py-1 text-xs"
-                >
-                  ⟲
-                </button>
-                <button onClick={() => nudgePosition(5, 0)} className="bg-white/10 hover:bg-white/20 text-white rounded py-1 text-sm">►</button>
-                <div />
-                <button onClick={() => nudgePosition(0, 5)} className="bg-white/10 hover:bg-white/20 text-white rounded py-1 text-sm">▼</button>
-                <div />
-              </div>
-            )}
           </div>
         ))}
       </section>
@@ -184,27 +132,24 @@ export default function HeroSlideshow() {
       {slides.map((slide, i) => (
         <div
           key={slide.key}
-          className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+          className={`absolute inset-0 transition-opacity ease-in-out ${
             i === current ? 'opacity-100 z-10' : 'opacity-0 z-0'
           }`}
           style={{
+            transitionDuration: '1500ms',
             transform: `translateY(${parallaxY}px) scale(${zoomScale})`,
             willChange: 'transform',
           }}
         >
-          {slide.type === 'video' ? (
-            <video
-              src={slide.src}
-              poster={HERO_POSTER}
-              onLoadedData={() => setVideoReady(true)}
-              autoPlay
-              muted
-              loop
-              playsInline
-              className="w-full h-full object-cover"
-              style={{ objectPosition: `${posX}% ${posY}%` }}
-            />
-          ) : (
+          {/* Separate wrapper for the Ken Burns zoom, kept apart from the
+              scroll-parallax transform above so the two don't fight over
+              the same element's transform property. Keyed on cycleCount
+              so the animation restarts fresh every time this slide comes
+              back around, not just the first time. */}
+          <div
+            key={i === current ? `kb-${cycleCount}` : 'kb-idle'}
+            className={i === current ? 'w-full h-full ken-burns' : 'w-full h-full'}
+          >
             <Image
               src={slide.src}
               alt={slide.alt}
@@ -214,7 +159,7 @@ export default function HeroSlideshow() {
               sizes="100vw"
               unoptimized={slide.src.startsWith('http')}
             />
-          )}
+          </div>
         </div>
       ))}
 
@@ -222,10 +167,7 @@ export default function HeroSlideshow() {
       <div className="absolute inset-0 hero-text-dim z-[5] pointer-events-none" />
 
       {/* Kinetic headline overlay */}
-      <div
-        className="absolute inset-0 z-[6] flex flex-col items-center justify-center text-center px-4 transition-opacity duration-500"
-        style={{ opacity: slides[current]?.type === 'video' && !videoReady ? 0 : 1 }}
-      >
+      <div className="absolute inset-0 z-[6] flex flex-col items-center justify-center text-center px-4">
         {editMode && editingHeading ? (
           <input
             autoFocus
