@@ -216,97 +216,105 @@ export default function AIAssistant() {
       `}</style>
 
       {open && (
-        <div className="bg-white border border-neutral-200 rounded-2xl w-80 max-w-[85vw] h-96 flex flex-col overflow-hidden shadow-2xl">
-          <div className="bg-neutral-50 px-4 py-3 flex items-center justify-between border-b border-neutral-200">
-            <div>
-              <p className="text-sm font-semibold text-neutral-900">Your AI Assistant</p>
-              <p className="text-[10px] text-neutral-500">Usually replies in seconds</p>
-            </div>
-            <button
-              onClick={() => {
-                setMessages([]);
-                setLeadCaptured(false);
-                greet();
-              }}
-              aria-label="Clear conversation"
-              title="Clear conversation"
-              className="text-neutral-500 hover:text-neutral-900 text-xs px-2 py-1 rounded-full hover:bg-black/5 transition-colors mr-1"
-            >
-              Clear
-            </button>
-            <button onClick={() => setOpen(false)} className="text-neutral-600 hover:text-neutral-900 text-xl">
-              ×
-            </button>
-          </div>
-          <div ref={messagesRef} className="flex-1 overflow-y-auto p-3 space-y-2 text-sm">
-            {messages.map((m, i) => (
-              <div
-                key={i}
-                className={
-                  m.who === 'bot'
-                    ? 'bg-neutral-50 text-neutral-800 rounded-xl rounded-bl-sm px-3 py-2 max-w-[85%]'
-                    : 'bg-[var(--gold)] text-white rounded-xl rounded-br-sm px-3 py-2 max-w-[85%] ml-auto'
-                }
-              >
-                {m.text}
-              </div>
-            ))}
-          </div>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              submitQuery(input);
-            }}
-            className="border-t border-neutral-200 p-2 flex gap-2 items-center"
+        <div
+          className="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 p-4"
+          onClick={() => setOpen(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white border border-neutral-200 rounded-2xl w-96 max-w-[92vw] h-[32rem] max-h-[85vh] flex flex-col overflow-hidden shadow-2xl"
           >
-            <div className="relative flex-1">
-              <input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder={listening ? '🎙 Listening…' : 'Ask about a product…'}
-                className="w-full bg-neutral-50 border border-neutral-200 rounded-full pl-3 pr-16 py-1.5 text-sm focus:outline-none focus:border-[var(--gold)] text-neutral-900"
-              />
-              {input && (
-                <button
-                  type="button"
-                  onClick={() => setInput('')}
-                  aria-label="Clear"
-                  className="absolute right-8 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center text-neutral-400 hover:text-neutral-700"
-                >
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="12" cy="12" r="9" fill="currentColor" opacity="0.12" />
-                    <path d="M9 9l6 6M15 9l-6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-                  </svg>
-                </button>
-              )}
+            <div className="bg-neutral-50 px-4 py-3 flex items-center justify-between border-b border-neutral-200">
+              <div>
+                <p className="text-sm font-semibold text-neutral-900">Your AI Assistant</p>
+                <p className="text-[10px] text-neutral-500">Usually replies in seconds</p>
+              </div>
               <button
-                type="button"
-                onClick={handleMicClick}
-                aria-label="Ask by voice"
-                className={`absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
-                  listening ? 'text-[var(--gold)] bg-black/5' : 'text-neutral-600 hover:text-[var(--gold)] hover:bg-white/5'
-                }`}
+                onClick={() => {
+                  setMessages([]);
+                  setLeadCaptured(false);
+                  greet();
+                }}
+                aria-label="Clear conversation"
+                title="Clear conversation"
+                className="text-neutral-500 hover:text-neutral-900 text-xs px-2 py-1 rounded-full hover:bg-black/5 transition-colors mr-1"
               >
-                {listening ? (
-                  <span className="mic-waveform" aria-hidden="true">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </span>
-                ) : (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Z" stroke="currentColor" strokeWidth="1.8" />
-                    <path d="M19 11a7 7 0 0 1-14 0" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-                    <path d="M12 18v3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-                  </svg>
-                )}
+                Clear
+              </button>
+              <button onClick={() => setOpen(false)} className="text-neutral-600 hover:text-neutral-900 text-xl">
+                ×
               </button>
             </div>
-            <button className="bg-[var(--gold)] text-white text-xs font-semibold px-3 rounded-full shrink-0" style={{ height: 32 }}>
-              ➤
-            </button>
-          </form>
+            <div ref={messagesRef} className="flex-1 overflow-y-auto p-3 space-y-2 text-sm">
+              {messages.map((m, i) => (
+                <div
+                  key={i}
+                  className={
+                    m.who === 'bot'
+                      ? 'bg-neutral-50 text-neutral-800 rounded-xl rounded-bl-sm px-3 py-2 max-w-[85%]'
+                      : 'bg-[var(--gold)] text-white rounded-xl rounded-br-sm px-3 py-2 max-w-[85%] ml-auto'
+                  }
+                >
+                  {m.text}
+                </div>
+              ))}
+            </div>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                submitQuery(input);
+              }}
+              className="border-t border-neutral-200 p-2 flex gap-2 items-center"
+            >
+              <div className="relative flex-1">
+                <input
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder={listening ? '🎙 Listening…' : 'Ask about a product…'}
+                  className="w-full bg-neutral-50 border border-neutral-200 rounded-full pl-3 pr-16 py-1.5 text-sm focus:outline-none focus:border-[var(--gold)] text-neutral-900"
+                />
+                {input && (
+                  <button
+                    type="button"
+                    onClick={() => setInput('')}
+                    aria-label="Clear"
+                    className="absolute right-8 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center text-neutral-400 hover:text-neutral-700"
+                  >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="12" cy="12" r="9" fill="currentColor" opacity="0.12" />
+                      <path d="M9 9l6 6M15 9l-6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                    </svg>
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={handleMicClick}
+                  aria-label="Ask by voice"
+                  className={`absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
+                    listening ? 'text-[var(--gold)] bg-black/5' : 'text-neutral-600 hover:text-[var(--gold)] hover:bg-white/5'
+                  }`}
+                >
+                  {listening ? (
+                    <span className="mic-waveform" aria-hidden="true">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </span>
+                  ) : (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Z" stroke="currentColor" strokeWidth="1.8" />
+                      <path d="M19 11a7 7 0 0 1-14 0" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                      <path d="M12 18v3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+              <button className="bg-[var(--gold)] text-white text-xs font-semibold px-3 rounded-full shrink-0" style={{ height: 32 }}>
+                ➤
+              </button>
+            </form>
+          </div>
         </div>
       )}
 
