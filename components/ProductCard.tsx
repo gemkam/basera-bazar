@@ -19,6 +19,7 @@ export default function ProductCard({ product: initialProduct }: { product: Prod
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const onSale = product.compare_at_price && product.compare_at_price > product.price;
+  const savings = onSale ? product.compare_at_price! - product.price : 0;
   const outOfStock = product.stock <= 0;
   const primaryImage = product.images?.[0];
   const hoverImage = product.images?.[1] || primaryImage;
@@ -128,8 +129,8 @@ export default function ProductCard({ product: initialProduct }: { product: Prod
         )}
 
         {onSale && (
-          <span className="absolute top-2 left-2 bg-[var(--gold)] text-white text-[10px] font-bold px-2 py-1 rounded-full z-10">
-            SALE
+          <span className="absolute top-2 left-2 bg-neutral-900 text-white text-[10px] font-bold px-2.5 py-1 rounded-full z-10 tracking-wide">
+            SAVE Rs.{savings.toLocaleString()}
           </span>
         )}
         {outOfStock && !editMode && (
@@ -207,6 +208,11 @@ export default function ProductCard({ product: initialProduct }: { product: Prod
           {product.title}
         </h3>
         <div className="mt-2 flex items-center gap-2">
+          {onSale && (
+            <span className="text-neutral-400 text-xs line-through">
+              Rs. {product.compare_at_price!.toLocaleString()}
+            </span>
+          )}
           {editMode && editingPrice ? (
             <input
               autoFocus
@@ -235,11 +241,6 @@ export default function ProductCard({ product: initialProduct }: { product: Prod
               }`}
             >
               Rs. {product.price.toLocaleString()}
-            </span>
-          )}
-          {onSale && (
-            <span className="text-neutral-500 text-xs line-through">
-              Rs. {product.compare_at_price!.toLocaleString()}
             </span>
           )}
         </div>
