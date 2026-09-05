@@ -71,6 +71,7 @@ export function ScrollReveal({
 
 /* ============================================================
    TrustBadges — row of trust indicators under the hero
+   (unchanged — already matched the theme in your screenshot)
    ============================================================ */
 
 interface Badge {
@@ -105,6 +106,7 @@ export function TrustBadges({ badges = defaultBadges }: { badges?: Badge[] }) {
 
 /* ============================================================
    StatsCounter — animated count-up stats bar
+   (unchanged — already matched the theme in your screenshot)
    ============================================================ */
 
 interface Stat {
@@ -168,7 +170,7 @@ function CountUpItem({ stat, started }: { stat: Stat; started: boolean }) {
 
   return (
     <div className="text-center">
-      <div className="text-3xl md:text-4xl font-bold">
+      <div className="text-3xl md:text-4xl font-bold gold-gradient">
         {display.toLocaleString()}
         {stat.suffix ?? ""}
       </div>
@@ -178,7 +180,8 @@ function CountUpItem({ stat, started }: { stat: Stat; started: boolean }) {
 }
 
 /* ============================================================
-   HowItWorks — 4-step process section
+   HowItWorks — 4-step process section, restyled with
+   gold-tinted icon badges and a gold-gradient heading word
    ============================================================ */
 
 interface Step {
@@ -198,14 +201,25 @@ export function HowItWorks() {
   return (
     <section className="py-14 px-4">
       <ScrollReveal direction="up">
-        <h2 className="text-2xl md:text-3xl font-bold text-center mb-10">How It Works</h2>
+        <h2 className="text-2xl md:text-3xl font-bold text-center mb-10">
+          How It <span className="gold-gradient">Works</span>
+        </h2>
       </ScrollReveal>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
         {steps.map((step, i) => (
           <ScrollReveal key={i} direction="up" delay={i * 150}>
             <div className="flex flex-col items-center text-center p-4 rounded-xl transition-transform duration-300 hover:-translate-y-2">
-              <div className="text-4xl mb-3">{step.icon}</div>
+              <div
+                className="w-16 h-16 rounded-full flex items-center justify-center text-2xl mb-3"
+                style={{
+                  background:
+                    "linear-gradient(135deg, rgba(212,175,55,0.15), rgba(212,175,55,0.05))",
+                  border: "1px solid rgba(212,175,55,0.35)",
+                }}
+              >
+                {step.icon}
+              </div>
               <h3 className="font-semibold mb-1">{step.title}</h3>
               <p className="text-sm opacity-75">{step.description}</p>
             </div>
@@ -217,7 +231,8 @@ export function HowItWorks() {
 }
 
 /* ============================================================
-   WhyChooseUs — 4-card feature grid
+   WhyChooseUs — 4-card feature grid, restyled to use the
+   site's existing "card" style instead of a plain border
    ============================================================ */
 
 interface Feature {
@@ -237,13 +252,15 @@ export function WhyChooseUs() {
   return (
     <section className="py-14 px-4">
       <ScrollReveal direction="up">
-        <h2 className="text-2xl md:text-3xl font-bold text-center mb-10">Why Choose BaZariFy</h2>
+        <h2 className="text-2xl md:text-3xl font-bold text-center mb-10">
+          Why Choose <span className="gold-gradient">BaZariFy</span>
+        </h2>
       </ScrollReveal>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
         {features.map((f, i) => (
           <ScrollReveal key={i} direction="up" delay={i * 120}>
-            <div className="p-6 rounded-2xl border text-center h-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+            <div className="card rounded-xl p-6 text-center h-full transition-all duration-300 hover:scale-[1.02]">
               <div className="text-3xl mb-3">{f.icon}</div>
               <h3 className="font-semibold mb-2">{f.title}</h3>
               <p className="text-sm opacity-75">{f.description}</p>
@@ -256,7 +273,8 @@ export function WhyChooseUs() {
 }
 
 /* ============================================================
-   Testimonials — auto-rotating review carousel
+   Testimonials — auto-rotating review carousel, gold stars
+   and gold-gradient heading/dots to match the theme
    ============================================================ */
 
 interface Review {
@@ -291,21 +309,34 @@ export function Testimonials({ reviews = defaultReviews }: { reviews?: Review[] 
   return (
     <section className="py-14 px-4">
       <ScrollReveal direction="up">
-        <h2 className="text-2xl md:text-3xl font-bold text-center mb-10">What Our Customers Say</h2>
+        <h2 className="text-2xl md:text-3xl font-bold text-center mb-10">
+          What Our <span className="gold-gradient">Customers Say</span>
+        </h2>
       </ScrollReveal>
 
       <div
-        className="max-w-xl mx-auto text-center transition-all duration-500"
+        className="card max-w-xl mx-auto text-center p-8 rounded-2xl transition-all duration-500"
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
       >
         <div className="flex justify-center mb-4">
-          <div className="w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold border">
+          <div
+            className="w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold"
+            style={{
+              background:
+                "linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.05))",
+              border: "1px solid rgba(212,175,55,0.4)",
+            }}
+          >
             {review.avatarInitial}
           </div>
         </div>
 
-        <div className="mb-3" aria-label={`${review.rating} out of 5 stars`}>
+        <div
+          className="mb-3 text-lg"
+          style={{ color: "#D4AF37" }}
+          aria-label={`${review.rating} out of 5 stars`}
+        >
           {"★".repeat(review.rating)}
           {"☆".repeat(5 - review.rating)}
         </div>
@@ -324,7 +355,7 @@ export function Testimonials({ reviews = defaultReviews }: { reviews?: Review[] 
               aria-label={`Go to review ${i + 1}`}
               className="w-2 h-2 rounded-full transition-all duration-300"
               style={{
-                backgroundColor: "currentColor",
+                backgroundColor: "#D4AF37",
                 opacity: i === index ? 1 : 0.3,
                 transform: i === index ? "scale(1.4)" : "scale(1)",
               }}
@@ -337,7 +368,8 @@ export function Testimonials({ reviews = defaultReviews }: { reviews?: Review[] 
 }
 
 /* ============================================================
-   CountdownTimer — urgency timer for sales
+   CountdownTimer — restyled black-and-gold to match the
+   "Start Shopping" pill button aesthetic
    ============================================================ */
 
 interface CountdownTimerProps {
@@ -374,9 +406,16 @@ export function CountdownTimer({ endTime, label = "Sale Ends In" }: CountdownTim
 
 function TimeBox({ value, unit }: { value: number; unit: string }) {
   return (
-    <div className="flex flex-col items-center px-2 py-1 rounded-md border min-w-[2.5rem]">
-      <span className="font-bold text-sm tabular-nums">{String(value).padStart(2, "0")}</span>
-      <span className="text-[10px] opacity-60">{unit}</span>
+    <div
+      className="flex flex-col items-center px-2 py-1 rounded-md min-w-[2.5rem]"
+      style={{ background: "#111", border: "1px solid #D4AF37" }}
+    >
+      <span className="font-bold text-sm tabular-nums" style={{ color: "#D4AF37" }}>
+        {String(value).padStart(2, "0")}
+      </span>
+      <span className="text-[10px]" style={{ color: "#D4AF37", opacity: 0.7 }}>
+        {unit}
+      </span>
     </div>
   );
 }
