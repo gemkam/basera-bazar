@@ -1,21 +1,16 @@
 'use client';
-
 import { usePowerEditor } from '@/lib/power-editor-context';
-
 export default function FloatingWhatsApp() {
   const { settings, loaded } = usePowerEditor();
-
   if (!loaded) return null;
-
   const number = (settings.whatsapp_number || '923094415485').replace(/[^0-9]/g, '');
   const message = encodeURIComponent("Hi! I'm interested in your products at BaZariFy.");
-
   return (
     <a
       href={`https://wa.me/${number}?text=${message}`}
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-5 right-5 z-50 bg-[#25D366] hover:bg-[#20bd5a] text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg shadow-black/50 transition-transform hover:scale-110"
+      className="fixed bottom-5 left-5 z-50 bg-[#25D366] hover:bg-[#20bd5a] text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg shadow-black/50 transition-transform hover:scale-110"
       aria-label="Chat on WhatsApp"
     >
       <svg viewBox="0 0 32 32" width="28" height="28" fill="currentColor">

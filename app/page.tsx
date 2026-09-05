@@ -7,6 +7,20 @@ import PromoBanner from "@/components/PromoBanner";
 import ContactForm from "@/components/ContactForm";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "BaZariFy | Quality Products & Best Deals Online in Pakistan",
+  description:
+    "Shop the best selection of home & kitchen tools, electronics, beauty care, and lifestyle accessories online in Pakistan. Enjoy Cash on Delivery nationwide and unbeatable prices.",
+  keywords: [
+    "online shopping Pakistan",
+    "best deals online",
+    "Cash on Delivery store",
+    "trending gadgets Pakistan",
+    "BaZariFy",
+  ],
+};
 
 // New sections — all bundled in one file, components/HomepageExtras.tsx
 import {
@@ -74,8 +88,23 @@ export default async function Home() {
 
   const saleEnd = getNextSaleEnd();
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "OnlineStore",
+    name: "BaZariFy",
+    url: "https://basera-bazar-lac.vercel.app",
+    description:
+      "Shop quality home, kitchen, electronics, beauty, and lifestyle products at BaZariFy. Cash on Delivery available nationwide.",
+    paymentAccepted: "Cash on Delivery",
+    areaServed: "PK",
+  };
+
   return (
     <div>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <ScrollIndicator />
 
       {/* Sticky hero — stays pinned while the rest of the page scrolls

@@ -33,6 +33,49 @@ export default function AIAssistant() {
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const messagesRef = useRef<HTMLDivElement>(null);
 
+  // --- Toggle button: alternate between "happy face" and "AI spiral" ---
+  const [showFace, setShowFace] = useState(true);
+  useEffect(() => {
+    const timer = setInterval(() => setShowFace((s) => !s), 2600);
+    return () => clearInterval(timer);
+  }, []);
+
+  // --- Draggable position ---
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+  const dragInfo = useRef({ dragging: false, moved: false, startX: 0, startY: 0, originX: 0, originY: 0 });
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  function handlePointerDown(e: React.PointerEvent) {
+    const rect = containerRef.current?.getBoundingClientRect();
+    const originX = pos?.x ?? rect?.left ?? window.innerWidth - 90;
+    const originY = pos?.y ?? rect?.top ?? window.innerHeight - 90;
+    dragInfo.current = {
+      dragging: true,
+      moved: false,
+      startX: e.clientX,
+      startY: e.clientY,
+      originX,
+      originY,
+    };
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  }
+
+  function handlePointerMove(e: React.PointerEvent) {
+    if (!dragInfo.current.dragging) return;
+    const dx = e.clientX - dragInfo.current.startX;
+    const dy = e.clientY - dragInfo.current.startY;
+    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) dragInfo.current.moved = true;
+
+    const size = 84; // button + a little breathing room
+    const newX = Math.min(Math.max(dragInfo.current.originX + dx, 8), window.innerWidth - size);
+    const newY = Math.min(Math.max(dragInfo.current.originY + dy, 8), window.innerHeight - size);
+    setPos({ x: newX, y: newY });
+  }
+
+  function handlePointerUp() {
+    dragInfo.current.dragging = false;
+  }
+
   useEffect(() => {
     const w = window as unknown as {
       SpeechRecognition?: new () => SpeechRecognitionLike;
@@ -98,6 +141,7 @@ export default function AIAssistant() {
   }
 
   function handleOpen() {
+    if (dragInfo.current.moved) return; // was a drag, not a click
     setOpen((o) => !o);
     if (!opened) {
       setOpened(true);
@@ -153,8 +197,41 @@ export default function AIAssistant() {
     return language === 'ur' ? 'شکریہ! ہماری ٹیم جلد آپ سے رابطہ کرے گی۔' : 'Got it — thanks! Our team will reach out shortly.';
   }
 
+  const draggedStyle = pos ? { left: pos.x, top: pos.y, right: 'auto', bottom: 'auto' } : undefined;
+
   return (
-    <div className="fixed bottom-5 right-5 z-[60] flex flex-col items-end gap-2">
+    <div
+      ref={containerRef}
+      className="fixed bottom-5 right-5 z-[60] flex flex-col items-end gap-2"
+      style={draggedStyle}
+    >
+      <style>{`
+        @keyframes aiCircleCycle {
+          0%   { background-position: 0% 50%; }
+          50%  { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        .ai-circle-gradient {
+          background: linear-gradient(135deg, #050505 0%, #6b6b6b 45%, #f5f5f5 70%, #6b6b6b 90%, #050505 100%);
+          background-size: 300% 300%;
+          animation: aiCircleCycle 6s ease-in-out infinite;
+        }
+        @keyframes aiFaceFade {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0; transform: scale(0.7); }
+        }
+        .ai-face-swap {
+          animation: aiFaceFade 2.6s ease-in-out infinite;
+        }
+        @keyframes aiSpiralSpin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .ai-spiral-spin {
+          animation: aiSpiralSpin 3s linear infinite;
+        }
+      `}</style>
+
       {open && (
         <div className="bg-white border border-neutral-200 rounded-2xl w-80 max-w-[85vw] h-96 flex flex-col overflow-hidden shadow-2xl">
           <div className="bg-neutral-50 px-4 py-3 flex items-center justify-between border-b border-neutral-200">
@@ -256,14 +333,34 @@ export default function AIAssistant() {
         </span>
         <button
           onClick={handleOpen}
-          className="relative bg-[var(--gold)] text-white w-14 h-14 rounded-full shadow-lg hover:bg-[var(--gold-light)] flex items-center justify-center shrink-0"
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          aria-label="Open AI Assistant"
+          title="Drag to move, click to chat"
+          className="ai-circle-gradient relative text-white w-20 h-20 rounded-full shadow-2xl flex items-center justify-center shrink-0 cursor-grab active:cursor-grabbing touch-none select-none"
         >
           <span className="ai-toggle-ring" />
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path className="twinkle-star twinkle-1" d="M12 2.5L13.85 9.15L20.5 11L13.85 12.85L12 19.5L10.15 12.85L3.5 11L10.15 9.15L12 2.5Z" fill="currentColor" />
-            <path className="twinkle-star twinkle-2" d="M19 2.5L19.55 4.45L21.5 5L19.55 5.55L19 7.5L18.45 5.55L16.5 5L18.45 4.45L19 2.5Z" fill="currentColor" />
-            <path className="twinkle-star twinkle-3" d="M5 15L5.55 16.95L7.5 17.5L5.55 18.05L5 20L4.45 18.05L2.5 17.5L4.45 16.95L5 15Z" fill="currentColor" />
-          </svg>
+
+          {/* Happy helping face */}
+          <span
+            className="ai-face-swap absolute text-3xl"
+            style={{ animationDelay: '0s' }}
+            aria-hidden="true"
+          >
+            🙂
+          </span>
+
+          {/* AI spiral, cross-faded against the face */}
+          <span
+            className="ai-face-swap ai-spiral-spin absolute text-2xl"
+            style={{ animationDelay: '1.3s' }}
+            aria-hidden="true"
+          >
+            🌀
+          </span>
+
+          <span className="sr-only">AI Assistant</span>
         </button>
       </div>
     </div>

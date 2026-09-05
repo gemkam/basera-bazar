@@ -11,14 +11,14 @@ import AIAssistant from "@/components/AIAssistant";
 
 export const metadata: Metadata = {
   title: {
-    default: "BaZariFy — Quality Products at Unbeatable Prices",
+    default: "BaZariFy: Quality Products at Unbeatable Prices",
     template: "%s | BaZariFy",
   },
   description:
     "Shop quality home, kitchen, electronics, beauty, and lifestyle products at BaZariFy. Cash on Delivery available nationwide.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://basera-bazar-lac.vercel.app"),
   openGraph: {
-    title: "BaZariFy — Quality Products at Unbeatable Prices",
+    title: "BaZariFy: Quality Products at Unbeatable Prices",
     description: "Shop quality products with Cash on Delivery, nationwide.",
     siteName: "BaZariFy",
     type: "website",
