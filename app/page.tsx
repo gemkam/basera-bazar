@@ -8,6 +8,17 @@ import ContactForm from "@/components/ContactForm";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 
+// New sections — all bundled in one file, components/HomepageExtras.tsx
+import {
+  ScrollReveal,
+  TrustBadges,
+  StatsCounter,
+  HowItWorks,
+  WhyChooseUs,
+  Testimonials,
+  CountdownTimer,
+} from "@/components/HomepageExtras";
+
 export const revalidate = 60;
 
 async function getCategories() {
@@ -25,13 +36,51 @@ async function getFeatured() {
   return data || [];
 }
 
+// Real counts for the stats bar — replaces guessed marketing numbers
+async function getCounts() {
+  const { count: productCount } = await supabase
+    .from("products")
+    .select("*", { count: "exact", head: true })
+    .eq("is_active", true);
+
+  const { count: categoryCount } = await supabase
+    .from("categories")
+    .select("*", { count: "exact", head: true });
+
+  return {
+    productCount: productCount || 0,
+    categoryCount: categoryCount || 0,
+  };
+}
+
+// Rolling weekly deadline for the Best Deals countdown (resets every Sunday night).
+// Swap this out for a real sale end date whenever you run an actual promotion.
+function getNextSaleEnd(): string {
+  const now = new Date();
+  const daysUntilSunday = (7 - now.getDay()) % 7 || 7;
+  const end = new Date(now);
+  end.setDate(now.getDate() + daysUntilSunday);
+  end.setHours(23, 59, 59, 0);
+  return end.toISOString();
+}
+
 export default async function Home() {
-  const [categories, featured] = await Promise.all([getCategories(), getFeatured()]);
+  const [categories, featured, counts] = await Promise.all([
+    getCategories(),
+    getFeatured(),
+    getCounts(),
+  ]);
+
+  const saleEnd = getNextSaleEnd();
 
   return (
     <div>
       <HeroSlideshow />
       <HeroExtras />
+
+      <ScrollReveal direction="up">
+        <TrustBadges />
+      </ScrollReveal>
 
       <section className="max-w-7xl mx-auto px-4 md:px-6 py-12">
         <h2 className="text-2xl font-bold mb-6 text-center">
@@ -57,16 +106,31 @@ export default async function Home() {
         </div>
       </section>
 
+      <ScrollReveal direction="up">
+        <StatsCounter
+          stats={[
+            { label: "Products Available", value: counts.productCount, suffix: "+" },
+            { label: "Categories", value: counts.categoryCount },
+            // Placeholders below — update with your real figures once you have them
+            { label: "Cities Delivered", value: 50, suffix: "+" },
+            { label: "Customer Rating", value: 4.8, suffix: "★" },
+          ]}
+        />
+      </ScrollReveal>
+
       <TrendingSection />
 
       <section className="max-w-7xl mx-auto px-4 md:px-6 py-12">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-3">
           <h2 className="text-2xl font-bold">
             🔥 Best <span className="gold-gradient">Deals</span>
           </h2>
-          <Link href="/products" className="text-sm text-neutral-600 hover:text-neutral-900">
-            View all →
-          </Link>
+          <div className="flex items-center gap-4">
+            <CountdownTimer endTime={saleEnd} label="Deals end in" />
+            <Link href="/products" className="text-sm text-neutral-600 hover:text-neutral-900">
+              View all →
+            </Link>
+          </div>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {featured.map((p) => (
@@ -75,10 +139,14 @@ export default async function Home() {
         </div>
       </section>
 
+      <HowItWorks />
+
+      <WhyChooseUs />
+
+      <Testimonials />
+
       <RecentlyViewed />
-
       <PromoBanner />
-
       <ContactForm />
     </div>
   );
