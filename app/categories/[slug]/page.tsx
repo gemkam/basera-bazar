@@ -1,4 +1,5 @@
 import ProductCard from "@/components/ProductCard";
+import CategoryFilters from "@/components/CategoryFilters";
 import { supabase } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -21,10 +22,13 @@ export async function generateMetadata({
 
 export default async function CategoryPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ sort?: string; sale?: string }>;
 }) {
   const { slug } = await params;
+  const { sort, sale } = await searchParams;
 
   const { data: category } = await supabase
     .from("categories")
@@ -34,26 +38,62 @@ export default async function CategoryPage({
 
   if (!category) notFound();
 
-  const { data: products } = await supabase
+  let query = supabase
     .from("products")
     .select("*")
     .eq("category_id", category.id)
-    .eq("is_active", true)
-    .order("title");
+    .eq("is_active", true);
+
+  // On Sale Only — compare_at_price greater than price means it's discounted
+  if (sale === "1") {
+    query = query.not("compare_at_price", "is", null).gt("compare_at_price", 0);
+  }
+
+  // Sorting
+  switch (sort) {
+    case "price_asc":
+      query = query.order("price", { ascending: true });
+      break;
+    case "price_desc":
+      query = query.order("price", { ascending: false });
+      break;
+    case "newest":
+      query = query.order("created_at", { ascending: false });
+      break;
+    case "name_asc":
+      query = query.order("title", { ascending: true });
+      break;
+    default:
+      query = query.order("title", { ascending: true });
+  }
+
+  const { data: products } = await query;
+
+  // Extra safety filter for "on sale" in case compare_at_price exists but
+  // isn't actually higher than price for some rows
+  const filteredProducts =
+    sale === "1"
+      ? (products || []).filter((p) => p.compare_at_price && p.compare_at_price > p.price)
+      : products || [];
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-6 py-12">
       <h1 className="text-3xl font-bold mb-2">
         <span className="gold-gradient">{category.name}</span>
       </h1>
-      <p className="text-neutral-500 mb-8">{products?.length || 0} products</p>
+
+      <CategoryFilters productCount={filteredProducts.length} />
+
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {(products || []).map((p) => (
+        {filteredProducts.map((p) => (
           <ProductCard key={p.id} product={p} />
         ))}
       </div>
-      {(!products || products.length === 0) && (
-        <p className="text-neutral-500 text-center py-20">No products in this category yet.</p>
+
+      {filteredProducts.length === 0 && (
+        <p className="text-neutral-500 text-center py-20">
+          {sale === "1" ? "No products on sale in this category right now." : "No products in this category yet."}
+        </p>
       )}
     </div>
   );
