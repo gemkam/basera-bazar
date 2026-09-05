@@ -8,6 +8,7 @@ import { PowerEditorProvider } from "@/lib/power-editor-context";
 import PowerEditorBanner from "@/components/PowerEditorBanner";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import AIAssistant from "@/components/AIAssistant";
+import VisitTracker from "@/components/VisitTracker";
 
 export const metadata: Metadata = {
   title: {
@@ -45,6 +46,7 @@ export default function RootLayout({
           <PowerEditorProvider>
             <CartProvider>
               <PowerEditorBanner />
+              <VisitTracker />
               <Nav />
               <main className="flex-1">{children}</main>
               <Footer />
