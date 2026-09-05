@@ -33,13 +33,6 @@ export default function AIAssistant() {
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const messagesRef = useRef<HTMLDivElement>(null);
 
-  // --- Toggle button: alternate between "happy face" and "AI spiral" ---
-  const [showFace, setShowFace] = useState(true);
-  useEffect(() => {
-    const timer = setInterval(() => setShowFace((s) => !s), 2600);
-    return () => clearInterval(timer);
-  }, []);
-
   // --- Draggable position ---
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
   const dragInfo = useRef({ dragging: false, moved: false, startX: 0, startY: 0, originX: 0, originY: 0 });
@@ -206,29 +199,19 @@ export default function AIAssistant() {
       style={draggedStyle}
     >
       <style>{`
-        @keyframes aiCircleCycle {
-          0%   { background-position: 0% 50%; }
-          50%  { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
+        @keyframes aiBreathe {
+          0%, 100% { transform: scale(1); opacity: 0.85; }
+          50% { transform: scale(1.12); opacity: 1; }
         }
-        .ai-circle-gradient {
-          background: linear-gradient(135deg, #050505 0%, #6b6b6b 45%, #f5f5f5 70%, #6b6b6b 90%, #050505 100%);
-          background-size: 300% 300%;
-          animation: aiCircleCycle 6s ease-in-out infinite;
+        .ai-breathe-text {
+          animation: aiBreathe 2.2s ease-in-out infinite;
         }
-        @keyframes aiFaceFade {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0; transform: scale(0.7); }
+        @keyframes aiSparkleTwinkle {
+          0%, 100% { opacity: 0.2; transform: scale(0.6) rotate(0deg); }
+          50% { opacity: 1; transform: scale(1.15) rotate(15deg); }
         }
-        .ai-face-swap {
-          animation: aiFaceFade 2.6s ease-in-out infinite;
-        }
-        @keyframes aiSpiralSpin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        .ai-spiral-spin {
-          animation: aiSpiralSpin 3s linear infinite;
+        .ai-sparkle {
+          animation: aiSparkleTwinkle 1.8s ease-in-out infinite;
         }
       `}</style>
 
@@ -338,26 +321,33 @@ export default function AIAssistant() {
           onPointerUp={handlePointerUp}
           aria-label="Open AI Assistant"
           title="Drag to move, click to chat"
-          className="ai-circle-gradient relative text-white w-20 h-20 rounded-full shadow-2xl flex items-center justify-center shrink-0 cursor-grab active:cursor-grabbing touch-none select-none"
+          className="relative bg-black text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center shrink-0 cursor-grab active:cursor-grabbing touch-none select-none"
         >
           <span className="ai-toggle-ring" />
 
-          {/* Happy helping face */}
-          <span
-            className="ai-face-swap absolute text-3xl"
-            style={{ animationDelay: '0s' }}
-            aria-hidden="true"
+          {/* Sparkles around the circle */}
+          <svg
+            className="ai-sparkle absolute -top-1 -right-1 pointer-events-none"
+            width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ animationDelay: '0s' }}
           >
-            🙂
-          </span>
+            <path d="M12 2.5L13.85 9.15L20.5 11L13.85 12.85L12 19.5L10.15 12.85L3.5 11L10.15 9.15L12 2.5Z" fill="white" />
+          </svg>
+          <svg
+            className="ai-sparkle absolute -bottom-1 -left-1 pointer-events-none"
+            width="10" height="10" viewBox="0 0 24 24" fill="none" style={{ animationDelay: '0.6s' }}
+          >
+            <path d="M12 2.5L13.85 9.15L20.5 11L13.85 12.85L12 19.5L10.15 12.85L3.5 11L10.15 9.15L12 2.5Z" fill="white" />
+          </svg>
+          <svg
+            className="ai-sparkle absolute top-0 left-0 pointer-events-none"
+            width="8" height="8" viewBox="0 0 24 24" fill="none" style={{ animationDelay: '1.1s' }}
+          >
+            <path d="M12 2.5L13.85 9.15L20.5 11L13.85 12.85L12 19.5L10.15 12.85L3.5 11L10.15 9.15L12 2.5Z" fill="white" />
+          </svg>
 
-          {/* AI spiral, cross-faded against the face */}
-          <span
-            className="ai-face-swap ai-spiral-spin absolute text-2xl"
-            style={{ animationDelay: '1.3s' }}
-            aria-hidden="true"
-          >
-            🌀
+          {/* Breathing "AI" text */}
+          <span className="ai-breathe-text text-sm font-bold tracking-wide" aria-hidden="true">
+            AI
           </span>
 
           <span className="sr-only">AI Assistant</span>
