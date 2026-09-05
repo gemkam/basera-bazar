@@ -214,8 +214,8 @@ export function HowItWorks() {
                 className="w-16 h-16 rounded-full flex items-center justify-center text-2xl mb-3"
                 style={{
                   background:
-                    "linear-gradient(135deg, rgba(212,175,55,0.15), rgba(212,175,55,0.05))",
-                  border: "1px solid rgba(212,175,55,0.35)",
+                    "linear-gradient(135deg, rgba(17,17,17,0.08), rgba(17,17,17,0.03))",
+                  border: "1px solid rgba(17,17,17,0.2)",
                 }}
               >
                 {step.icon}
@@ -324,8 +324,8 @@ export function Testimonials({ reviews = defaultReviews }: { reviews?: Review[] 
             className="w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold"
             style={{
               background:
-                "linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.05))",
-              border: "1px solid rgba(212,175,55,0.4)",
+                "linear-gradient(135deg, rgba(17,17,17,0.1), rgba(17,17,17,0.03))",
+              border: "1px solid rgba(17,17,17,0.25)",
             }}
           >
             {review.avatarInitial}
@@ -334,7 +334,7 @@ export function Testimonials({ reviews = defaultReviews }: { reviews?: Review[] 
 
         <div
           className="mb-3 text-lg"
-          style={{ color: "#D4AF37" }}
+          style={{ color: "#111111" }}
           aria-label={`${review.rating} out of 5 stars`}
         >
           {"★".repeat(review.rating)}
@@ -355,7 +355,7 @@ export function Testimonials({ reviews = defaultReviews }: { reviews?: Review[] 
               aria-label={`Go to review ${i + 1}`}
               className="w-2 h-2 rounded-full transition-all duration-300"
               style={{
-                backgroundColor: "#D4AF37",
+                backgroundColor: "#111111",
                 opacity: i === index ? 1 : 0.3,
                 transform: i === index ? "scale(1.4)" : "scale(1)",
               }}
@@ -408,12 +408,12 @@ function TimeBox({ value, unit }: { value: number; unit: string }) {
   return (
     <div
       className="flex flex-col items-center px-2 py-1 rounded-md min-w-[2.5rem]"
-      style={{ background: "#111", border: "1px solid #D4AF37" }}
+      style={{ background: "#111111", border: "1px solid rgba(255,255,255,0.15)" }}
     >
-      <span className="font-bold text-sm tabular-nums" style={{ color: "#D4AF37" }}>
+      <span className="font-bold text-sm tabular-nums" style={{ color: "#ffffff" }}>
         {String(value).padStart(2, "0")}
       </span>
-      <span className="text-[10px]" style={{ color: "#D4AF37", opacity: 0.7 }}>
+      <span className="text-[10px]" style={{ color: "#ffffff", opacity: 0.6 }}>
         {unit}
       </span>
     </div>
@@ -481,7 +481,7 @@ export function ScrollIndicator() {
           width: "4px",
           height: "60px",
           borderRadius: "999px",
-          background: "#D4AF37",
+          background: "#111111",
           opacity: visible ? 0.85 : 0,
           transition: "opacity 0.4s ease",
         }}
