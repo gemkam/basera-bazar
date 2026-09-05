@@ -339,3 +339,34 @@ html[dir="rtl"] .glass-logo {
     transform: scale(0.8);
   }
 }
+/*
+  Add these rules to your existing globals.css (append at the bottom,
+  don't replace anything already there).
+*/
+
+/* Hide the native browser scrollbar everywhere — replaced by the
+   custom ScrollIndicator component (gold, auto-fading). */
+html {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* old Edge/IE */
+}
+html::-webkit-scrollbar {
+  width: 0px;
+  background: transparent; /* Chrome/Safari/new Edge */
+}
+
+/* Used by the sticky hero wrapper in page.tsx */
+.sticky-hero-wrap {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  overflow: hidden;
+  z-index: 0;
+}
+.content-overlap {
+  position: relative;
+  z-index: 10;
+  /* Match this to your actual page background so the overlap looks
+     seamless, not transparent. Swap the hex if your bg isn't white. */
+  background: #ffffff;
+}

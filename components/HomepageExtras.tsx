@@ -428,3 +428,64 @@ function getRemaining(target: Date) {
   const seconds = Math.floor((total / 1000) % 60);
   return { total, hours, minutes, seconds };
 }
+
+/* ============================================================
+   ScrollIndicator — replaces the native scrollbar with a slim
+   gold bar that only appears while actively scrolling, then
+   fades out. Pair with the globals.css rules that hide the
+   native scrollbar.
+   ============================================================ */
+
+export function ScrollIndicator() {
+  const [progress, setProgress] = useState(0);
+  const [visible, setVisible] = useState(false);
+  const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      setProgress(pct);
+      setVisible(true);
+
+      if (hideTimer.current) clearTimeout(hideTimer.current);
+      hideTimer.current = setTimeout(() => setVisible(false), 900);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (hideTimer.current) clearTimeout(hideTimer.current);
+    };
+  }, []);
+
+  return (
+    <div
+      aria-hidden="true"
+      style={{
+        position: "fixed",
+        top: 0,
+        right: "6px",
+        width: "4px",
+        height: "100vh",
+        zIndex: 9999,
+        pointerEvents: "none",
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          top: `${progress}%`,
+          transform: "translateY(-50%)",
+          width: "4px",
+          height: "60px",
+          borderRadius: "999px",
+          background: "#D4AF37",
+          opacity: visible ? 0.85 : 0,
+          transition: "opacity 0.4s ease",
+        }}
+      />
+    </div>
+  );
+}

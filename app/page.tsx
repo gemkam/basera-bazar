@@ -17,6 +17,7 @@ import {
   WhyChooseUs,
   Testimonials,
   CountdownTimer,
+  ScrollIndicator,
 } from "@/components/HomepageExtras";
 
 export const revalidate = 60;
@@ -75,9 +76,18 @@ export default async function Home() {
 
   return (
     <div>
-      <HeroSlideshow />
-      <HeroExtras />
+      <ScrollIndicator />
 
+      {/* Sticky hero — stays pinned while the rest of the page scrolls
+          up and over it. Remove the two wrapping divs below (keep
+          HeroSlideshow/HeroExtras as before) if this doesn't look
+          right with your hero's actual height. */}
+      <div className="sticky-hero-wrap">
+        <HeroSlideshow />
+        <HeroExtras />
+      </div>
+
+      <div className="content-overlap">
       <ScrollReveal direction="up">
         <TrustBadges />
       </ScrollReveal>
@@ -148,6 +158,7 @@ export default async function Home() {
       <RecentlyViewed />
       <PromoBanner />
       <ContactForm />
+      </div>
     </div>
   );
 }
