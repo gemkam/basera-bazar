@@ -16,6 +16,11 @@ export async function verifyAdminToken(
 ): Promise<{ email: string; role: string } | null> {
   try {
     const { payload } = await jwtVerify(token, secretKey);
+    // Only accept tokens explicitly issued as admin sessions. Other tokens
+    // signed with the same secret (e.g. checkout email tokens) must not pass.
+    if (payload.role !== 'admin' || typeof payload.email !== 'string') {
+      return null;
+    }
     return payload as { email: string; role: string };
   } catch {
     return null;

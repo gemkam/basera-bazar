@@ -1,13 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServiceSupabase } from '@/lib/supabase';
+import { verifyCheckoutEmailToken, normalizeEmail } from '@/lib/verification';
 
 export async function POST(req: NextRequest) {
   const supabase = getServiceSupabase();
   const body = await req.json();
-  const { customer_name, email, phone, address, city, notes, items } = body;
+  const { customer_name, email, phone, address, city, notes, items, verificationToken } = body;
 
   if (!customer_name || !email || !phone || !address || !city || !items?.length) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+  }
+
+  // Require a valid email-verification token, and make sure it was issued for
+  // the exact email being ordered with (no verifying one address then swapping).
+  const verified = verificationToken
+    ? await verifyCheckoutEmailToken(verificationToken)
+    : null;
+
+  if (!verified || verified.email !== normalizeEmail(email)) {
+    return NextResponse.json(
+      { error: 'Please verify your email address before placing the order.' },
+      { status: 403 }
+    );
   }
 
   const total = items.reduce(
@@ -19,7 +33,7 @@ export async function POST(req: NextRequest) {
     .from('orders')
     .insert({
       customer_name,
-      email,
+      email: normalizeEmail(email),
       phone,
       address,
       city,

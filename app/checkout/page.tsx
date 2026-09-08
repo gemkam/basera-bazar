@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/lib/cart-context';
 
@@ -93,9 +93,104 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Email verification (6-digit code) state.
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [verificationToken, setVerificationToken] = useState('');
+  const [codeSent, setCodeSent] = useState(false);
+  const [codeInput, setCodeInput] = useState('');
+  const [sendingCode, setSendingCode] = useState(false);
+  const [verifyingCode, setVerifyingCode] = useState(false);
+  const [verifyError, setVerifyError] = useState('');
+  const [verifyNotice, setVerifyNotice] = useState('');
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const t = setTimeout(() => setCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [cooldown]);
+
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  // Any change to the email invalidates a prior verification.
+  function updateEmail(value: string) {
+    setForm((f) => ({ ...f, email: value }));
+    if (emailVerified || codeSent || verificationToken) {
+      setEmailVerified(false);
+      setVerificationToken('');
+      setCodeSent(false);
+      setCodeInput('');
+      setVerifyNotice('');
+      setVerifyError('');
+    }
+  }
+
+  async function sendCode() {
+    setVerifyError('');
+    setVerifyNotice('');
+    if (!EMAIL_RE.test(form.email)) {
+      setVerifyError('Enter a valid email address first.');
+      return;
+    }
+    setSendingCode(true);
+    try {
+      const res = await fetch('/api/verify-email/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: form.email }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setCodeSent(true);
+        setCooldown(60);
+        setVerifyNotice('Code sent. Check your inbox (and spam folder).');
+      } else {
+        setVerifyError(data.error || 'Could not send the code. Please try again.');
+      }
+    } catch {
+      setVerifyError('Network error. Please try again.');
+    } finally {
+      setSendingCode(false);
+    }
+  }
+
+  async function verifyCode() {
+    setVerifyError('');
+    if (codeInput.trim().length !== 6) {
+      setVerifyError('Enter the 6-digit code from the email.');
+      return;
+    }
+    setVerifyingCode(true);
+    try {
+      const res = await fetch('/api/verify-email/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: form.email, code: codeInput.trim() }),
+      });
+      const data = await res.json();
+      if (res.ok && data.token) {
+        setEmailVerified(true);
+        setVerificationToken(data.token);
+        setVerifyNotice('');
+      } else {
+        setVerifyError(data.error || 'Verification failed. Please try again.');
+      }
+    } catch {
+      setVerifyError('Network error. Please try again.');
+    } finally {
+      setVerifyingCode(false);
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
+
+    if (!emailVerified || !verificationToken) {
+      setError('Please verify your email address before placing the order.');
+      return;
+    }
+
     setLoading(true);
 
     const fullPhone = `${form.phoneCode}${form.phoneRest}`.replace(/\s+/g, '');
@@ -111,6 +206,7 @@ export default function CheckoutPage() {
         address: form.address,
         city: finalCity,
         notes: form.notes,
+        verificationToken,
         items: items.map((i) => ({
           productId: i.productId,
           title: i.title,
@@ -200,13 +296,68 @@ export default function CheckoutPage() {
 
           <div>
             <label className="text-xs text-neutral-600">Email Address</label>
-            <input
-              required
-              type="email"
-              value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-              className="w-full mt-1 bg-neutral-50 border border-neutral-300 rounded-lg px-3 py-2.5 text-sm focus:border-[var(--gold)] outline-none"
-            />
+            <div className="flex gap-2 mt-1">
+              <input
+                required
+                type="email"
+                value={form.email}
+                onChange={(e) => updateEmail(e.target.value)}
+                disabled={emailVerified}
+                className="flex-1 min-w-0 bg-neutral-50 border border-neutral-300 rounded-lg px-3 py-2.5 text-sm focus:border-[var(--gold)] outline-none disabled:opacity-70"
+              />
+              {emailVerified ? (
+                <span className="shrink-0 inline-flex items-center gap-1 px-3 rounded-lg bg-green-50 border border-green-200 text-green-700 text-xs font-semibold">
+                  ✓ Verified
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={sendCode}
+                  disabled={sendingCode || cooldown > 0}
+                  className="shrink-0 px-3 rounded-lg border border-[var(--gold)] text-[var(--gold)] text-xs font-semibold hover:bg-[var(--gold)] hover:text-white transition-colors disabled:opacity-50"
+                >
+                  {sendingCode
+                    ? 'Sending...'
+                    : cooldown > 0
+                      ? `Resend in ${cooldown}s`
+                      : codeSent
+                        ? 'Resend code'
+                        : 'Verify email'}
+                </button>
+              )}
+            </div>
+
+            {codeSent && !emailVerified && (
+              <div className="mt-2 card rounded-lg p-3 space-y-2">
+                <p className="text-xs text-neutral-600">
+                  Enter the 6-digit code sent to your email.
+                </p>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={6}
+                    placeholder="______"
+                    value={codeInput}
+                    onChange={(e) => setCodeInput(e.target.value.replace(/[^0-9]/g, ''))}
+                    className="flex-1 min-w-0 tracking-[0.4em] text-center bg-neutral-50 border border-neutral-300 rounded-lg px-3 py-2.5 text-sm focus:border-[var(--gold)] outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={verifyCode}
+                    disabled={verifyingCode || codeInput.length !== 6}
+                    className="shrink-0 bg-[var(--gold)] text-white text-sm font-semibold px-4 rounded-lg hover:bg-[var(--gold-light)] transition-colors disabled:opacity-50"
+                  >
+                    {verifyingCode ? '...' : 'Verify'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {verifyNotice && !verifyError && (
+              <p className="text-xs mt-2 text-green-600">{verifyNotice}</p>
+            )}
+            {verifyError && <p className="text-xs mt-2 text-red-600">{verifyError}</p>}
           </div>
           <div>
             <label className="text-xs text-neutral-600">Delivery Address</label>
@@ -262,10 +413,15 @@ export default function CheckoutPage() {
             <p className="text-neutral-600 text-sm">💵 Cash on Delivery (COD)</p>
           </div>
 
+          {!emailVerified && (
+            <p className="text-xs text-neutral-500 text-center">
+              Please verify your email above to place your order.
+            </p>
+          )}
           <button
             type="submit"
-            disabled={loading}
-            className="w-full bg-[var(--gold)] text-white font-semibold rounded-lg py-3 hover:bg-[var(--gold-light)] transition-colors disabled:opacity-50"
+            disabled={loading || !emailVerified}
+            className="w-full bg-[var(--gold)] text-white font-semibold rounded-lg py-3 hover:bg-[var(--gold-light)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Placing Order...' : `Place Order: Rs. ${subtotal.toLocaleString()}`}
           </button>
