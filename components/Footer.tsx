@@ -1,8 +1,14 @@
+'use client';
 import Link from 'next/link';
 import SubscribeForm from './SubscribeForm';
 import EditableText from './EditableText';
+import { usePowerEditor } from '@/lib/power-editor-context';
 
 export default function Footer() {
+  const { settings } = usePowerEditor();
+  const rawNumber = settings?.whatsapp_number || '923094415485';
+  const cleanNumber = rawNumber.replace(/[^0-9]/g, '');
+
   return (
     <footer className="border-t border-neutral-200 mt-16">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-10 grid md:grid-cols-3 gap-8">
@@ -18,7 +24,14 @@ export default function Footer() {
           </p>
           <p className="text-neutral-500 text-xs mt-2">
             WhatsApp:{' '}
-            <EditableText settingKey="whatsapp_number" fallback="923094415485" />
+            
+              href={`https://wa.me/${cleanNumber}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-neutral-900 transition-colors underline"
+            >
+              <EditableText settingKey="whatsapp_number" fallback="923094415485" />
+            </a>
           </p>
         </div>
 
