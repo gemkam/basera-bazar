@@ -92,7 +92,7 @@ export default async function Home() {
     "@context": "https://schema.org",
     "@type": "OnlineStore",
     name: "BaZariFy",
-    url: "https://basera-bazar-lac.vercel.app",
+    url: "https://1bazarify.store",
     description:
       "Shop quality home, kitchen, electronics, beauty, and lifestyle products at BaZariFy. Cash on Delivery available nationwide.",
     paymentAccepted: "Cash on Delivery",
