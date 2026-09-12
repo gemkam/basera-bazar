@@ -24,7 +24,7 @@ export default function Footer() {
           </p>
           <p className="text-neutral-500 text-xs mt-2">
             WhatsApp:{' '}
-            
+            <a
               href={`https://wa.me/${cleanNumber}`}
               target="_blank"
               rel="noopener noreferrer"
