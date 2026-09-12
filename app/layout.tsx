@@ -32,6 +32,20 @@ export const metadata: Metadata = {
     description: "Shop quality products with Cash on Delivery, nationwide.",
     siteName: "BaZariFy",
     type: "website",
+    images: [
+      {
+        url: "/hero/hero1.webp",
+        width: 1280,
+        height: 720,
+        alt: "BaZariFy - Quality Products at Unbeatable Prices",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BaZariFy: Quality Products at Unbeatable Prices",
+    description: "Shop quality products with Cash on Delivery, nationwide.",
+    images: ["/hero/hero1.webp"],
   },
 };
 
