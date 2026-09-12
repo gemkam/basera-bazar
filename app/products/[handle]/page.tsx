@@ -49,7 +49,7 @@ export default async function ProductPage({
   if (!product) notFound();
 
   const outOfStock = product.stock <= 0;
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://basera-bazar-lac.vercel.app';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://1bazarify.store';
 
   const jsonLd = {
     "@context": "https://schema.org",

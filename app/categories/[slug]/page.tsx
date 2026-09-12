@@ -120,16 +120,16 @@ export default async function CategoryPage({
     "@type": "CollectionPage",
     name: category.name,
     description: seo?.description || `Shop ${category.name} at BaZariFy.`,
-    url: `https://basera-bazar-lac.vercel.app/categories/${slug}`,
+    url: `https://1bazarify.store/categories/${slug}`,
     breadcrumb: {
       "@type": "BreadcrumbList",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: "https://basera-bazar-lac.vercel.app" },
+        { "@type": "ListItem", position: 1, name: "Home", item: "https://1bazarify.store" },
         {
           "@type": "ListItem",
           position: 2,
           name: category.name,
-          item: `https://basera-bazar-lac.vercel.app/categories/${slug}`,
+          item: `https://1bazarify.store/categories/${slug}`,
         },
       ],
     },
