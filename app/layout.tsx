@@ -17,9 +17,7 @@ export const metadata: Metadata = {
   },
   description:
     "Shop quality home, kitchen, electronics, beauty, and lifestyle products at BaZariFy. Cash on Delivery available nationwide.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://1bazarify.store"),verification: {
-    google: "R8iwpN2oHu0PCYC3VjwNyQTlePduYlo-4gLoZ85QkWg",
-  },
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://1bazarify.store"),
   openGraph: {
     title: "BaZariFy: Quality Products at Unbeatable Prices",
     description: "Shop quality products with Cash on Delivery, nationwide.",
@@ -42,6 +40,7 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400..700&family=Cormorant+Garamond:ital,wght@1,500;1,600&family=Caveat:wght@500;700&display=swap"
           rel="stylesheet"
         />
+        <meta name="google-site-verification" content="R8iwpN2oHu0PCYC3VjwNyQTlePduYlo-4gLoZ85QkWg" />
       </head>
       <body className="bg-white text-neutral-900 antialiased min-h-screen flex flex-col">
         <LanguageProvider>
