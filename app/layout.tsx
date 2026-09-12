@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   },
   description:
     "Shop quality home, kitchen, electronics, beauty, and lifestyle products at BaZariFy. Cash on Delivery available nationwide.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://basera-bazar-lac.vercel.app"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://1bazarify.store"),
   openGraph: {
     title: "BaZariFy: Quality Products at Unbeatable Prices",
     description: "Shop quality products with Cash on Delivery, nationwide.",
