@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { supabase } from '@/lib/supabase';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://basera-bazar-lac.vercel.app';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://1bazarify.store';
 
   const { data: products } = await supabase.from('products').select('handle, updated_at').eq('is_active', true);
   const { data: categories } = await supabase.from('categories').select('slug');
