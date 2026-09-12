@@ -21,9 +21,16 @@ export async function generateMetadata({
 
   const description = (product.description_html || "").slice(0, 155);
 
+  const keywordWords = product.title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, "")
+    .split(/\s+/)
+    .filter((w: string) => w.length > 2);
+
   return {
     title: `${product.title} | BaZariFy`,
     description: description || `Buy ${product.title} at BaZariFy - Rs. ${product.price}`,
+    keywords: [...keywordWords, "BaZariFy", "Pakistan", "cash on delivery", "online shopping"],
     openGraph: {
       title: product.title,
       description: description,
