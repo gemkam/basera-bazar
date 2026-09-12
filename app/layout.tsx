@@ -17,6 +17,15 @@ export const metadata: Metadata = {
   },
   description:
     "Shop quality home, kitchen, electronics, beauty, and lifestyle products at BaZariFy. Cash on Delivery available nationwide.",
+  keywords: [
+    "online shopping Pakistan",
+    "cash on delivery Pakistan",
+    "BaZariFy",
+    "buy online Pakistan",
+    "home kitchen electronics Pakistan",
+    "best deals Pakistan",
+    "COD store Pakistan",
+  ],
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://1bazarify.store"),
   openGraph: {
     title: "BaZariFy: Quality Products at Unbeatable Prices",
